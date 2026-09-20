@@ -884,7 +884,7 @@
         timer = setTimeout(() => {
           ns.classList.add('visible');
           setTimeout(() => ns.classList.remove('visible'), 5000);
-        }, 30000);
+        }, 10000);
       }
       ['mousemove','keydown','scroll','touchstart','click'].forEach(ev =>
         document.addEventListener(ev, arm, { passive: true })
