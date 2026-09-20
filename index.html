@@ -435,11 +435,110 @@
         border-right: 1px solid rgba(255,255,255,0.05);
       }
     }
+
+    /* ================================================================
+       CURSOR GLOW — phosphor trail
+    ================================================================ */
+    #cursor-glow {
+      position: fixed; pointer-events: none; z-index: 8999;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 68%);
+      transform: translate(-50%,-50%);
+      opacity: 0; transition: opacity 0.4s;
+      will-change: left, top;
+    }
+
+    /* ================================================================
+       NO SIGNAL — idle easter egg
+    ================================================================ */
+    #no-signal {
+      position: fixed; inset: 0; z-index: 9990;
+      background: #050505;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 32px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s;
+      cursor: pointer;
+    }
+    #no-signal.visible { opacity: 1; pointer-events: all; }
+    .ns-bars {
+      display: flex; width: min(320px, 82vw); height: min(180px, 46vw); gap: 0;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .ns-bar { flex: 1; }
+    .ns-text {
+      font-family: 'VT323', monospace; font-size: 22px;
+      letter-spacing: 10px; text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+    }
+    .ns-sub {
+      font-family: 'VT323', monospace; font-size: 13px;
+      letter-spacing: 5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.18); margin-top: -20px;
+    }
+    .ns-cursor {
+      width: 9px; height: 18px; background: rgba(255,255,255,0.5);
+      animation: blink 0.9s step-end infinite; margin-top: -20px;
+    }
+
+    /* ================================================================
+       TICKER — bottom broadcast strip
+    ================================================================ */
+    .tv-ticker {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 8000;
+      height: 28px; overflow: hidden;
+      background: rgba(0,0,0,0.95);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center;
+    }
+    .ticker-track {
+      display: flex; white-space: nowrap;
+      animation: tickerScroll 22s linear infinite;
+    }
+    .ticker-track span {
+      font-family: 'VT323', monospace; font-size: 13px;
+      letter-spacing: 5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      padding-right: 96px;
+    }
+    @keyframes tickerScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    body { padding-bottom: 28px; }
   </style>
 </head>
 <body>
 
   <div class="grain" aria-hidden="true"></div>
+
+  <!-- Cursor glow -->
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <!-- No signal easter egg -->
+  <div id="no-signal" aria-hidden="true">
+    <div class="ns-bars">
+      <div class="ns-bar" style="background:rgba(200,200,200,0.75)"></div>
+      <div class="ns-bar" style="background:rgba(200,200,0,0.75)"></div>
+      <div class="ns-bar" style="background:rgba(0,200,200,0.75)"></div>
+      <div class="ns-bar" style="background:rgba(0,200,0,0.75)"></div>
+      <div class="ns-bar" style="background:rgba(200,0,200,0.75)"></div>
+      <div class="ns-bar" style="background:rgba(200,0,0,0.75)"></div>
+      <div class="ns-bar" style="background:rgba(0,0,200,0.75)"></div>
+    </div>
+    <span class="ns-text">No Signal</span>
+    <span class="ns-sub">Tap to return</span>
+    <div class="ns-cursor"></div>
+  </div>
+
+  <!-- Broadcast ticker -->
+  <div class="tv-ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>43VA All Along Loading... · AARNxBRWN · 43VA All Along Loading... · AARNxBRWN · 43VA All Along Loading... · AARNxBRWN · 43VA All Along Loading... · AARNxBRWN · </span>
+      <span>43VA All Along Loading... · AARNxBRWN · 43VA All Along Loading... · AARNxBRWN · 43VA All Along Loading... · AARNxBRWN · 43VA All Along Loading... · AARNxBRWN · </span>
+    </div>
+  </div>
+
   <div id="tv-flash"      aria-hidden="true"></div>
   <div id="tv-bar-top"    aria-hidden="true"></div>
   <div id="tv-bar-bottom" aria-hidden="true"></div>
@@ -517,8 +616,8 @@
         <div class="block-body">
           <div class="block-body-inner">
             <div class="embed-wrap">
-              <iframe src="https://www.youtube.com/embed/0YApNPyQesI?rel=0&modestbranding=1"
-                title="AARNxBRWN – Front Line"
+              <iframe src="https://www.youtube.com/embed/e-mCHMKRQck?rel=0&modestbranding=1"
+                title="AARNxBRWN – Come Re Home"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen loading="lazy"></iframe>
             </div>
@@ -760,10 +859,88 @@
     document.getElementById('email-block').href = CONFIG.beehiiv;
 
     /* ================================================================
+       CURSOR GLOW — phosphor trail (desktop only)
+    ================================================================ */
+    if (window.matchMedia('(pointer: fine)').matches) {
+      const glow = document.getElementById('cursor-glow');
+      let mx = 0, my = 0, gx = 0, gy = 0;
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; glow.style.opacity = '1'; });
+      document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+      (function animGlow() {
+        gx += (mx - gx) * 0.09; gy += (my - gy) * 0.09;
+        glow.style.left = gx + 'px'; glow.style.top = gy + 'px';
+        requestAnimationFrame(animGlow);
+      })();
+    }
+
+    /* ================================================================
+       NO SIGNAL — 30s idle easter egg
+    ================================================================ */
+    (function () {
+      const ns = document.getElementById('no-signal');
+      let timer;
+      function arm() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          ns.classList.add('visible');
+          setTimeout(() => ns.classList.remove('visible'), 5000);
+        }, 30000);
+      }
+      ['mousemove','keydown','scroll','touchstart','click'].forEach(ev =>
+        document.addEventListener(ev, arm, { passive: true })
+      );
+      ns.addEventListener('click', () => ns.classList.remove('visible'));
+      arm();
+    })();
+
+    /* ================================================================
+       STATIC BURST — Web Audio click on block open
+    ================================================================ */
+    function playStaticBurst() {
+      try {
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        const buf = ac.createBuffer(1, ac.sampleRate * 0.07, ac.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+        const src = ac.createBufferSource();
+        const gain = ac.createGain();
+        gain.gain.setValueAtTime(0.11, ac.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.07);
+        src.buffer = buf; src.connect(gain); gain.connect(ac.destination);
+        src.start(); src.stop(ac.currentTime + 0.07);
+      } catch (e) {}
+    }
+
+    /* ================================================================
+       GLITCH TEXT — scramble on hover
+    ================================================================ */
+    const GLITCH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%';
+    document.querySelectorAll('.block-label').forEach(el => {
+      const orig = el.textContent;
+      let iv;
+      el.addEventListener('mouseenter', () => {
+        let t = 0;
+        clearInterval(iv);
+        iv = setInterval(() => {
+          el.textContent = orig.split('').map((c, i) => {
+            if (c === ' ') return ' ';
+            if (t > 8) return c;
+            if (t > 5) return Math.random() > 0.45 ? c : GLITCH[Math.floor(Math.random() * GLITCH.length)];
+            return GLITCH[Math.floor(Math.random() * GLITCH.length)];
+          }).join('');
+          t++;
+          if (t >= 12) { clearInterval(iv); el.textContent = orig; }
+        }, 36);
+      });
+      el.addEventListener('mouseleave', () => { clearInterval(iv); el.textContent = orig; });
+    });
+
+    /* ================================================================
        EXPAND / COLLAPSE
     ================================================================ */
     function toggleBlock(block) {
       const opening = !block.classList.contains('is-open');
+      if (opening) playStaticBurst();
       document.querySelectorAll('[data-expandable]').forEach(b => {
         b.classList.remove('is-open');
         b.querySelector('.block-header').setAttribute('aria-expanded', 'false');
