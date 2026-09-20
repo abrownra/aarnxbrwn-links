@@ -126,6 +126,22 @@
       z-index: 6; pointer-events: none;
     }
 
+    /* Scroll hint — minimal animated chevron */
+    .scroll-hint {
+      position: absolute; bottom: 36px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 7; pointer-events: none;
+      opacity: 0;
+      animation: scrollBounce 2.8s ease-in-out 2.4s infinite;
+    }
+    .scroll-hint svg { display: block; }
+    @keyframes scrollBounce {
+      0%   { opacity: 0;    transform: translateX(-50%) translateY(-6px); }
+      30%  { opacity: 0.45; transform: translateX(-50%) translateY(0px); }
+      65%  { opacity: 0.45; transform: translateX(-50%) translateY(5px); }
+      100% { opacity: 0;    transform: translateX(-50%) translateY(10px); }
+    }
+
     /* ================================================================
        SECTIONS — perspective arc container
     ================================================================ */
@@ -141,11 +157,11 @@
       will-change: transform;
       transition: transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.42s;
     }
-    .block-wrap:nth-child(1) { transform: rotateY(-7deg); }
-    .block-wrap:nth-child(2) { transform: rotateY(-2.5deg); }
-    .block-wrap:nth-child(3) { transform: rotateY( 2.5deg); }
-    .block-wrap:nth-child(4) { transform: rotateY( 7deg); }
-    .block-wrap:nth-child(5) { transform: rotateY( 4deg); }
+    .block-wrap:nth-child(1) { transform: rotateY(-4deg); }
+    .block-wrap:nth-child(2) { transform: rotateY(-1.5deg); }
+    .block-wrap:nth-child(3) { transform: rotateY( 1.5deg); }
+    .block-wrap:nth-child(4) { transform: rotateY( 4deg); }
+    .block-wrap:nth-child(5) { transform: rotateY( 2.5deg); }
     .block-wrap:hover {
       transform: rotateY(0deg) translateZ(18px);
       box-shadow: -8px 0 32px rgba(255,255,255,0.04);
@@ -160,6 +176,7 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
       cursor: pointer; background: #000;
       opacity: 0; /* GSAP reveals on scroll */
+      text-decoration: none; color: inherit; /* prevent browser link defaults */
     }
     .block::before {
       content: ''; position: absolute; top: 0; left: 0;
@@ -379,14 +396,14 @@
     }
     .social-link {
       display: flex; align-items: center; justify-content: center;
-      padding: 26px 8px;
+      padding: 30px 8px;
       background: #000;
       color: rgba(255,255,255,0.45); text-decoration: none;
       transition: color 0.22s, background 0.22s;
       -webkit-tap-highlight-color: transparent;
     }
     .social-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
-    .social-link svg { width: 26px; height: 26px; fill: currentColor; flex-shrink: 0; }
+    .social-link svg { width: 32px; height: 32px; fill: currentColor; flex-shrink: 0; }
 
     footer small {
       font-family: 'VT323', monospace; font-size: 13px; letter-spacing: 3px;
@@ -434,6 +451,14 @@
     </div>
 
     <div class="hero-fade" aria-hidden="true"></div>
+
+    <div class="scroll-hint" id="scroll-hint" aria-hidden="true">
+      <svg width="22" height="14" viewBox="0 0 22 14" fill="none"
+           stroke="rgba(255,255,255,0.7)" stroke-width="1.2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 1 11 12 21 1"/>
+      </svg>
+    </div>
   </section>
 
   <!-- ================================================================
@@ -780,6 +805,13 @@
         numEl.textContent = 'CH ' + String(final).padStart(2, '0');
       });
     });
+
+    /* Hide scroll hint once user starts scrolling */
+    window.addEventListener('scroll', function hideHint() {
+      const hint = document.getElementById('scroll-hint');
+      if (hint) hint.style.opacity = '0';
+      window.removeEventListener('scroll', hideHint);
+    }, { passive: true });
 
     /* ================================================================
        PERIODIC SYNC GLITCH
