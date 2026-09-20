@@ -8,7 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@900&family=VT323&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 
@@ -18,10 +18,13 @@
     body {
       background: #000;
       color: #fff;
-      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      font-family: 'DM Sans', -apple-system, sans-serif;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      transition: transform 60ms steps(1);
     }
+
+    body.glitch { transform: translateX(2px); }
 
     /* ================================================================
        FILM GRAIN
@@ -31,7 +34,7 @@
       inset: 0;
       z-index: 9000;
       pointer-events: none;
-      opacity: 0.06;
+      opacity: 0.055;
       background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
       background-size: 180px 180px;
       animation: grainShift 0.35s steps(1) infinite;
@@ -49,305 +52,279 @@
     /* ================================================================
        TV INTRO
     ================================================================ */
-
-    /* 1 — white flash */
     #tv-flash {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #fff;
-      pointer-events: none;
-      opacity: 0;
+      position: fixed; inset: 0;
+      z-index: 9999; background: #fff;
+      pointer-events: none; opacity: 0;
       animation: tvFlash 0.45s ease-out 0.05s forwards;
     }
+    @keyframes tvFlash { 0%{opacity:0} 18%{opacity:0.92} 100%{opacity:0} }
 
-    @keyframes tvFlash {
-      0%   { opacity: 0; }
-      18%  { opacity: 0.92; }
-      100% { opacity: 0; }
-    }
-
-    /* 2 — black bars slide away from center to reveal static below */
-    #tv-bar-top,
-    #tv-bar-bottom {
-      position: fixed;
-      left: 0; right: 0;
-      z-index: 9998;
-      background: #000;
+    #tv-bar-top, #tv-bar-bottom {
+      position: fixed; left: 0; right: 0;
+      z-index: 9998; background: #000;
       pointer-events: none;
     }
-
     #tv-bar-top    { top: 0;    height: 50.5%; animation: barUp   1.05s cubic-bezier(0.4,0,0.85,1) 0.22s forwards; }
     #tv-bar-bottom { bottom: 0; height: 50.5%; animation: barDown 1.05s cubic-bezier(0.4,0,0.85,1) 0.22s forwards; }
 
-    /* Phosphor seam — bright 2px line at the meeting edges */
     #tv-bar-top::after {
-      content: ''; position: absolute;
-      bottom: 0; left: 0; right: 0; height: 2px;
-      background: rgba(255,255,255,0.55);
+      content:''; position:absolute;
+      bottom:0; left:0; right:0; height:2px;
+      background:rgba(255,255,255,0.55);
     }
     #tv-bar-bottom::before {
-      content: ''; position: absolute;
-      top: 0; left: 0; right: 0; height: 2px;
-      background: rgba(255,255,255,0.55);
+      content:''; position:absolute;
+      top:0; left:0; right:0; height:2px;
+      background:rgba(255,255,255,0.55);
     }
-
-    @keyframes barUp {
-      0%   { transform: translateY(0); }
-      12%  { transform: translateY(-1.5%); }   /* warmup stutter */
-      100% { transform: translateY(-101%); }
-    }
-
-    @keyframes barDown {
-      0%   { transform: translateY(0); }
-      12%  { transform: translateY(1.5%); }
-      100% { transform: translateY(101%); }
-    }
+    @keyframes barUp   { 0%{transform:translateY(0)} 12%{transform:translateY(-1.5%)}  100%{transform:translateY(-101%)} }
+    @keyframes barDown { 0%{transform:translateY(0)} 12%{transform:translateY( 1.5%)}  100%{transform:translateY( 101%)} }
 
     /* ================================================================
        HERO
     ================================================================ */
     #hero {
       position: relative;
-      height: 100svh;
-      min-height: 520px;
+      height: 100svh; min-height: 520px;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    /* Canvas static — low-res, scaled up for chunky pixel look */
     #hero-static {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       z-index: 0;
-      opacity: 0.48;
+      opacity: 0.52;
     }
 
-    /* CRT horizontal scanlines */
     .scanlines {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
+      position: absolute; inset: 0; z-index: 2;
       pointer-events: none;
       background: repeating-linear-gradient(
         to bottom,
-        transparent   0px,
-        transparent   2px,
-        rgba(0,0,0,0.14) 2px,
-        rgba(0,0,0,0.14) 4px
+        transparent 0px, transparent 2px,
+        rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
       );
     }
 
-    /* CRT refresh sweep — very faint bright band drifting downward */
     .scan-sweep {
-      position: absolute;
-      left: 0; right: 0;
-      height: 90px;
+      position: absolute; left: 0; right: 0; height: 90px;
       background: linear-gradient(
         to bottom,
-        transparent              0%,
-        rgba(255,255,255,0.018) 40%,
-        rgba(255,255,255,0.045) 50%,
-        rgba(255,255,255,0.018) 60%,
-        transparent             100%
-      );
-      z-index: 3;
-      pointer-events: none;
-      top: -15%;
-      animation: sweepDown 7s linear infinite;
-    }
-
-    @keyframes sweepDown {
-      from { top: -18%; }
-      to   { top: 118%; }
-    }
-
-    /* Radial vignette — keeps logo readable over the static */
-    .hero-vignette {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      pointer-events: none;
-      background: radial-gradient(
-        ellipse 65% 52% at 50% 50%,
-        rgba(0,0,0,0.65) 0%,
+        transparent 0%, rgba(255,255,255,0.016) 40%,
+        rgba(255,255,255,0.042) 50%, rgba(255,255,255,0.016) 60%,
         transparent 100%
       );
+      z-index: 3; pointer-events: none; top: -15%;
+      animation: sweepDown 7s linear infinite;
+    }
+    @keyframes sweepDown { from{top:-18%} to{top:118%} }
+
+    .hero-vignette {
+      position: absolute; inset: 0; z-index: 4;
+      pointer-events: none;
+      background: radial-gradient(ellipse 65% 52% at 50% 50%, rgba(0,0,0,0.7) 0%, transparent 100%);
     }
 
-    /* Logo / name */
     .hero-content {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      padding: 0 24px;
-      opacity: 0; /* GSAP handles reveal */
+      position: relative; z-index: 5;
+      text-align: center; padding: 0 24px;
+      opacity: 0;
     }
 
     .logo-img {
-      max-width: 240px;
-      width: 72vw;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-      filter: brightness(0) invert(1);
+      max-width: 260px; width: 72vw;
+      height: auto; display: block; margin: 0 auto;
+      shape-rendering: geometricPrecision;
     }
 
-    /* Text fallback — shown when logo.png is missing */
     .logo-text {
-      font-family: 'Bebas Neue', cursive;
-      font-size: clamp(58px, 18vw, 96px);
-      letter-spacing: 5px;
-      line-height: 1;
-      display: none;
-      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(58px,18vw,96px);
+      letter-spacing: 5px; line-height: 1;
+      display: none; color: #fff;
     }
 
-    /* Fade hero into black at the bottom — clean transition to sections */
     .hero-fade {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 110px;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 120px;
       background: linear-gradient(to bottom, transparent, #000);
-      z-index: 6;
-      pointer-events: none;
+      z-index: 6; pointer-events: none;
     }
 
     /* ================================================================
-       SECTIONS
+       SECTIONS ARC — perspective container
     ================================================================ */
-    #sections { display: flex; flex-direction: column; }
+    #sections {
+      display: flex; flex-direction: column;
+      perspective: 1100px;
+      perspective-origin: 50% 0%;
+    }
+
+    /* ================================================================
+       BLOCK WRAP — handles the 3-D crescent rotation
+    ================================================================ */
+    .block-wrap {
+      will-change: transform;
+      transition: transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94),
+                  box-shadow 0.42s;
+    }
+
+    .block-wrap:nth-child(1) { transform: rotateY(-7deg); }
+    .block-wrap:nth-child(2) { transform: rotateY(-2.5deg); }
+    .block-wrap:nth-child(3) { transform: rotateY( 2.5deg); }
+    .block-wrap:nth-child(4) { transform: rotateY( 7deg); }
+
+    .block-wrap:hover {
+      transform: rotateY(0deg) translateZ(18px);
+      box-shadow: -8px 0 32px rgba(255,255,255,0.04);
+    }
 
     /* ================================================================
        BLOCK BASE
     ================================================================ */
     .block {
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
       border-bottom: 1px solid rgba(255,255,255,0.08);
-      cursor: pointer;
-      background: #000;
-      opacity: 0;
-      transform: translateY(28px);
+      cursor: pointer; background: #000;
+      opacity: 0; transform: translateY(28px);
     }
 
-    /* White line slides in from left on hover */
+    /* Slide-in top line */
     .block::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 0; height: 1px;
+      content: ''; position: absolute;
+      top: 0; left: 0; width: 0; height: 1px;
       background: rgba(255,255,255,0.5);
-      z-index: 4;
-      pointer-events: none;
+      z-index: 4; pointer-events: none;
       transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
     }
-
     .block:hover::before  { width: 100%; }
     .block.is-open::before { width: 100%; background: rgba(255,255,255,0.22); }
+
+    /* ================================================================
+       CH INDICATOR — top-right TV channel overlay
+    ================================================================ */
+    .ch-indicator {
+      position: absolute;
+      top: 14px; right: 18px;
+      z-index: 5;
+      display: flex; align-items: center; gap: 6px;
+      pointer-events: none;
+      opacity: 0.28;
+      transition: opacity 0.3s;
+    }
+
+    .block:hover .ch-indicator,
+    .block.is-open .ch-indicator { opacity: 0.85; }
+
+    /* 3-bar signal strength */
+    .ch-signal {
+      display: flex; align-items: flex-end; gap: 2px; height: 10px;
+    }
+    .ch-signal span {
+      width: 3px; background: rgba(255,255,255,0.5);
+      transition: background 0.3s;
+    }
+    .ch-signal span:nth-child(1) { height: 4px; }
+    .ch-signal span:nth-child(2) { height: 7px; }
+    .ch-signal span:nth-child(3) { height: 10px; }
+
+    .block:hover .ch-signal span,
+    .block.is-open .ch-signal span { background: #fff; }
+
+    /* CH number — VT323 pixel font */
+    .ch-num {
+      font-family: 'VT323', monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: #fff;
+      line-height: 1;
+    }
+
+    /* Blinking "on air" dot */
+    .ch-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .block.is-open .ch-dot {
+      background: #fff;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
     /* ================================================================
        BLOCK HEADER
     ================================================================ */
     .block-header {
-      position: relative;
-      z-index: 3;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      min-height: 120px;
-      text-decoration: none;
-      color: inherit;
+      position: relative; z-index: 3;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; min-height: 120px;
+      text-decoration: none; color: inherit;
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Ghost index number watermark */
+    /* Ghost index watermark */
     .block-num {
-      position: absolute;
-      right: 62px;
-      top: 50%;
+      position: absolute; right: 62px; top: 50%;
       transform: translateY(-50%);
-      font-family: 'Bebas Neue', cursive;
-      font-size: clamp(72px, 20vw, 110px);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(72px,20vw,110px);
       line-height: 1;
-      color: rgba(255,255,255,0.038);
-      user-select: none;
-      pointer-events: none;
-      z-index: 0;
+      color: rgba(255,255,255,0.03);
+      user-select: none; pointer-events: none; z-index: 0;
       transition: color 0.4s;
     }
-
-    .block:hover .block-num { color: rgba(255,255,255,0.06); }
+    .block:hover .block-num { color: rgba(255,255,255,0.055); }
 
     .block-label {
-      position: relative;
-      z-index: 1;
-      font-family: 'Bebas Neue', cursive;
-      font-size: clamp(48px, 14vw, 72px);
-      letter-spacing: 3px;
-      line-height: 1;
+      position: relative; z-index: 1;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(52px,14vw,76px);
+      letter-spacing: 2px; line-height: 1;
       color: rgba(255,255,255,0.86);
       transition: color 0.3s, letter-spacing 0.4s;
     }
-
-    .block:hover .block-label  { color: #fff; letter-spacing: 4px; }
+    .block:hover .block-label  { color: #fff; letter-spacing: 3px; }
     .block.is-open .block-label { color: #fff; }
 
-    /* Plus / × icon */
+    /* Plus/× icon */
     .block-icon {
-      position: relative;
-      z-index: 1;
-      flex-shrink: 0;
-      width: 22px; height: 22px;
+      position: relative; z-index: 1;
+      flex-shrink: 0; width: 22px; height: 22px;
       opacity: 0.32;
       transition: opacity 0.3s, transform 0.42s cubic-bezier(0.34,1.4,0.64,1);
     }
-
-    .block-icon::before,
-    .block-icon::after {
-      content: '';
-      position: absolute;
-      background: #fff;
+    .block-icon::before, .block-icon::after {
+      content: ''; position: absolute; background: #fff;
     }
-
-    .block-icon::before { width: 1px; height: 100%; left: 50%; top: 0; transform: translateX(-50%); }
-    .block-icon::after  { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%); }
-
+    .block-icon::before { width:1px; height:100%; left:50%; top:0; transform:translateX(-50%); }
+    .block-icon::after  { width:100%; height:1px; top:50%; left:0; transform:translateY(-50%); }
     .block:hover .block-icon   { opacity: 0.65; }
     .block.is-open .block-icon { opacity: 1; transform: rotate(45deg); }
 
-    /* Arrow icon for direct-link blocks */
+    /* Arrow for direct-link blocks */
     .block-arrow {
-      position: relative;
-      z-index: 1;
-      flex-shrink: 0;
-      opacity: 0.32;
-      color: #fff;
+      position: relative; z-index: 1;
+      flex-shrink: 0; opacity: 0.32; color: #fff;
       transition: opacity 0.3s, transform 0.3s;
     }
-
     .block:hover .block-arrow { opacity: 1; transform: translate(4px,-4px); }
 
     /* ================================================================
        EXPANDABLE BODY
     ================================================================ */
     .block-body {
-      position: relative;
-      z-index: 3;
-      max-height: 0;
-      overflow: hidden;
+      position: relative; z-index: 3;
+      max-height: 0; overflow: hidden;
       transition: max-height 0.6s cubic-bezier(0.4,0,0.2,1);
     }
-
     .block.is-open .block-body { max-height: 760px; }
-
     .block-body-inner { padding: 0 24px 36px; }
 
     /* ================================================================
@@ -356,89 +333,84 @@
     .platform-list { display: flex; flex-direction: column; }
 
     .plat-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 15px 0;
       border-bottom: 1px solid rgba(255,255,255,0.07);
       text-decoration: none;
       color: rgba(255,255,255,0.42);
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
+      font-size: 11px; letter-spacing: 2.5px;
+      text-transform: uppercase; font-family: 'DM Sans', sans-serif;
       transition: color 0.22s, padding-left 0.22s;
       -webkit-tap-highlight-color: transparent;
     }
-
     .plat-item:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
     .plat-item:hover { color: #fff; padding-left: 6px; }
 
     .plat-item svg {
-      flex-shrink: 0;
-      opacity: 0;
-      transform: translate(-4px, 4px);
+      flex-shrink: 0; opacity: 0;
+      transform: translate(-4px,4px);
       transition: opacity 0.22s, transform 0.22s;
     }
-
     .plat-item:hover svg { opacity: 1; transform: translate(0,0); }
 
     /* ================================================================
        VIDEOS
     ================================================================ */
     .embed-wrap {
-      position: relative;
-      width: 100%;
-      padding-bottom: 56.25%;
-      background: #080808;
-      overflow: hidden;
-      margin-bottom: 12px;
+      position: relative; width: 100%; padding-bottom: 56.25%;
+      background: #080808; overflow: hidden; margin-bottom: 12px;
     }
-
     .embed-wrap iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      border: none;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; border: none;
     }
 
     .ch-links {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: rgba(255,255,255,0.07);
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: rgba(255,255,255,0.07);
     }
-
     .ch-link {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 14px;
-      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px; background: #000;
       text-decoration: none;
       color: rgba(255,255,255,0.38);
-      font-size: 10px;
-      letter-spacing: 2px;
+      font-size: 10px; letter-spacing: 2px;
+      font-family: 'VT323', monospace; font-size: 14px;
       text-transform: uppercase;
       transition: color 0.22s, background 0.22s;
       -webkit-tap-highlight-color: transparent;
     }
-
     .ch-link:hover { color: #fff; background: rgba(255,255,255,0.04); }
 
     /* ================================================================
        FOOTER
     ================================================================ */
     footer {
-      padding: 48px 24px 44px;
+      padding: 52px 24px 48px;
       text-align: center;
       border-top: 1px solid rgba(255,255,255,0.06);
     }
 
+    .social-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 28px; margin-bottom: 36px;
+    }
+
+    .social-link {
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.32);
+      text-decoration: none;
+      transition: color 0.22s, transform 0.22s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .social-link:hover { color: #fff; transform: translateY(-3px); }
+    .social-link svg { width: 20px; height: 20px; fill: currentColor; }
+
     footer small {
-      font-size: 9px;
-      letter-spacing: 4px;
+      font-family: 'VT323', monospace;
+      font-size: 13px; letter-spacing: 3px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.11);
+      color: rgba(255,255,255,0.14);
     }
 
     /* ================================================================
@@ -448,12 +420,11 @@
       .block-header     { padding: 0 40px; min-height: 136px; }
       .block-body-inner { padding: 0 40px 44px; }
       .block-num        { right: 82px; }
+      .ch-indicator     { top: 18px; right: 24px; }
     }
-
     @media (min-width: 900px) {
       #sections {
-        max-width: 720px;
-        margin: 0 auto;
+        max-width: 720px; margin: 0 auto;
         border-left:  1px solid rgba(255,255,255,0.05);
         border-right: 1px solid rgba(255,255,255,0.05);
       }
@@ -462,10 +433,8 @@
 </head>
 <body>
 
-  <!-- Film grain overlay -->
   <div class="grain" aria-hidden="true"></div>
 
-  <!-- TV intro — flash then bars slide apart -->
   <div id="tv-flash"      aria-hidden="true"></div>
   <div id="tv-bar-top"    aria-hidden="true"></div>
   <div id="tv-bar-bottom" aria-hidden="true"></div>
@@ -474,12 +443,9 @@
        HERO
   ================================================================ -->
   <section id="hero">
-
-    <!-- Canvas static: rendered at 320×180, CSS-stretched for chunky pixels -->
-    <canvas id="hero-static" width="320" height="180" aria-hidden="true"></canvas>
-
-    <div class="scanlines"    aria-hidden="true"></div>
-    <div class="scan-sweep"   aria-hidden="true"></div>
+    <canvas id="hero-static" width="480" height="270" aria-hidden="true"></canvas>
+    <div class="scanlines"     aria-hidden="true"></div>
+    <div class="scan-sweep"    aria-hidden="true"></div>
     <div class="hero-vignette" aria-hidden="true"></div>
 
     <div class="hero-content" id="hero-content">
@@ -502,98 +468,166 @@
   <main id="sections">
 
     <!-- MUSIC -->
-    <div class="block" data-section="music" data-expandable>
-      <span class="block-num" aria-hidden="true">01</span>
-      <div class="block-header" role="button" aria-expanded="false" tabindex="0">
-        <span class="block-label">Music</span>
-        <span class="block-icon" aria-hidden="true"></span>
-      </div>
-      <div class="block-body">
-        <div class="block-body-inner">
-          <div class="platform-list" id="platform-list"></div>
+    <div class="block-wrap">
+      <div class="block" data-section="music" data-expandable>
+        <div class="ch-indicator" aria-hidden="true">
+          <span class="ch-signal">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="ch-num">CH 01</span>
+          <span class="ch-dot"></span>
+        </div>
+        <span class="block-num" aria-hidden="true">01</span>
+        <div class="block-header" role="button" aria-expanded="false" tabindex="0">
+          <span class="block-label">Music</span>
+          <span class="block-icon" aria-hidden="true"></span>
+        </div>
+        <div class="block-body">
+          <div class="block-body-inner">
+            <div class="platform-list" id="platform-list"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- VIDEOS -->
-    <div class="block" data-section="videos" data-expandable>
-      <span class="block-num" aria-hidden="true">02</span>
-      <div class="block-header" role="button" aria-expanded="false" tabindex="0">
-        <span class="block-label">Videos</span>
-        <span class="block-icon" aria-hidden="true"></span>
-      </div>
-      <div class="block-body">
-        <div class="block-body-inner">
-          <div class="embed-wrap">
-            <!--
-              Featured video — swap VIDEO_ID to change which video shows:
-              https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1
-            -->
-            <iframe
-              src="https://www.youtube.com/embed/0YApNPyQesI?rel=0&modestbranding=1"
-              title="AARNxBRWN – Front Line"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-              loading="lazy"
-            ></iframe>
-          </div>
-          <div class="ch-links">
-            <a href="https://www.youtube.com/channel/UCxXbQXy8jZDstrgLcoQsRxQ"
-               target="_blank" rel="noopener" class="ch-link">Topic Channel</a>
-            <a href="https://www.youtube.com/@aarnxbrwn7126"
-               target="_blank" rel="noopener" class="ch-link">Main Channel</a>
+    <div class="block-wrap">
+      <div class="block" data-section="videos" data-expandable>
+        <div class="ch-indicator" aria-hidden="true">
+          <span class="ch-signal">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="ch-num">CH 02</span>
+          <span class="ch-dot"></span>
+        </div>
+        <span class="block-num" aria-hidden="true">02</span>
+        <div class="block-header" role="button" aria-expanded="false" tabindex="0">
+          <span class="block-label">Videos</span>
+          <span class="block-icon" aria-hidden="true"></span>
+        </div>
+        <div class="block-body">
+          <div class="block-body-inner">
+            <div class="embed-wrap">
+              <iframe
+                src="https://www.youtube.com/embed/0YApNPyQesI?rel=0&modestbranding=1"
+                title="AARNxBRWN – Front Line"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen loading="lazy"
+              ></iframe>
+            </div>
+            <div class="ch-links">
+              <a href="https://www.youtube.com/channel/UCxXbQXy8jZDstrgLcoQsRxQ"
+                 target="_blank" rel="noopener" class="ch-link">Topic Channel</a>
+              <a href="https://www.youtube.com/@aarnxbrwn7126"
+                 target="_blank" rel="noopener" class="ch-link">Main Channel</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- STORE -->
-    <a class="block" data-section="store"
-       href="https://aarnxbrwn.bandcamp.com"
-       target="_blank" rel="noopener">
-      <span class="block-num" aria-hidden="true">03</span>
-      <div class="block-header">
-        <span class="block-label">Store</span>
-        <span class="block-arrow" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
-               stroke="currentColor" stroke-width="1" stroke-linecap="round">
-            <line x1="2" y1="16" x2="16" y2="2"/>
-            <polyline points="6 2 16 2 16 12"/>
-          </svg>
-        </span>
-      </div>
-    </a>
+    <div class="block-wrap">
+      <a class="block" data-section="store"
+         href="https://aarnxbrwn.bandcamp.com"
+         target="_blank" rel="noopener">
+        <div class="ch-indicator" aria-hidden="true">
+          <span class="ch-signal">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="ch-num">CH 03</span>
+          <span class="ch-dot"></span>
+        </div>
+        <span class="block-num" aria-hidden="true">03</span>
+        <div class="block-header">
+          <span class="block-label">Store</span>
+          <span class="block-arrow" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                 stroke="currentColor" stroke-width="1" stroke-linecap="round">
+              <line x1="2" y1="16" x2="16" y2="2"/>
+              <polyline points="6 2 16 2 16 12"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+    </div>
 
     <!-- EMAIL LIST -->
-    <a class="block" data-section="email"
-       href="https://YOUR-NAME.beehiiv.com/subscribe"
-       target="_blank" rel="noopener"
-       id="email-block">
-      <span class="block-num" aria-hidden="true">04</span>
-      <div class="block-header">
-        <span class="block-label">Email List</span>
-        <span class="block-arrow" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
-               stroke="currentColor" stroke-width="1" stroke-linecap="round">
-            <line x1="2" y1="16" x2="16" y2="2"/>
-            <polyline points="6 2 16 2 16 12"/>
-          </svg>
-        </span>
-      </div>
-    </a>
+    <div class="block-wrap">
+      <a class="block" data-section="email"
+         href="https://YOUR-NAME.beehiiv.com/subscribe"
+         target="_blank" rel="noopener"
+         id="email-block">
+        <div class="ch-indicator" aria-hidden="true">
+          <span class="ch-signal">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="ch-num">CH 04</span>
+          <span class="ch-dot"></span>
+        </div>
+        <span class="block-num" aria-hidden="true">04</span>
+        <div class="block-header">
+          <span class="block-label">Email List</span>
+          <span class="block-arrow" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                 stroke="currentColor" stroke-width="1" stroke-linecap="round">
+              <line x1="2" y1="16" x2="16" y2="2"/>
+              <polyline points="6 2 16 2 16 12"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+    </div>
 
   </main>
 
   <footer>
-    <small>© 2025 AARNxBRWN</small>
+    <div class="social-row">
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/aarnxbrwn" target="_blank" rel="noopener"
+         class="social-link" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        </svg>
+      </a>
+      <!-- TikTok -->
+      <a href="https://www.tiktok.com/@aarnxbrwn" target="_blank" rel="noopener"
+         class="social-link" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.22 8.22 0 004.8 1.54V6.78a4.85 4.85 0 01-1.03-.09z"/>
+        </svg>
+      </a>
+      <!-- YouTube -->
+      <a href="https://www.youtube.com/@aarnxbrwn7126" target="_blank" rel="noopener"
+         class="social-link" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      </a>
+      <!-- SoundCloud -->
+      <a href="https://soundcloud.com/aarnxbrwn" target="_blank" rel="noopener"
+         class="social-link" aria-label="SoundCloud">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.175 12.225c-.015.104.002.172.063.234.052.053.117.075.196.075h.608c.104 0 .169-.013.221-.063.052-.05.077-.117.077-.221V9.782c0-.104-.025-.172-.077-.221-.052-.05-.117-.063-.221-.063h-.608c-.079 0-.144.022-.196.075-.061.062-.078.13-.063.234v2.418zm1.927.427c-.015.104.002.172.063.234.052.053.117.075.196.075h.608c.104 0 .169-.013.221-.063.052-.05.077-.117.077-.221V8.576c0-.104-.025-.172-.077-.221-.052-.05-.117-.063-.221-.063h-.608c-.079 0-.144.022-.196.075-.061.062-.078.13-.063.234v4.051zm1.927.375c-.015.104.002.172.063.234.052.053.117.075.196.075h.608c.104 0 .169-.013.221-.063.052-.05.077-.117.077-.221V7.953c0-.104-.025-.172-.077-.221-.052-.05-.117-.063-.221-.063h-.608c-.079 0-.144.022-.196.075-.061.062-.078.13-.063.234v4.849zM7.9 13.5a.75.75 0 001.5 0V7.25a.75.75 0 00-1.5 0V13.5zm2.5.25a.5.5 0 001 0V6.5a.5.5 0 00-1 0V13.75zM16 12a4 4 0 00-3.8-3.99.25.25 0 00-.2.25V14h7.5A3.5 3.5 0 0016 12z"/>
+        </svg>
+      </a>
+      <!-- X / Twitter -->
+      <a href="https://twitter.com/aarnxbrwn" target="_blank" rel="noopener"
+         class="social-link" aria-label="Twitter / X">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+    </div>
+    <small>© 2025 AARNXBRWN</small>
   </footer>
 
   <!-- ================================================================
-       SCRIPT — not deferred so canvas starts immediately
+       SCRIPT
   ================================================================ -->
   <script>
     /* ================================================================
-       CONFIG — only edit this block to update links
+       CONFIG
     ================================================================ */
     const CONFIG = {
       platforms: [
@@ -603,31 +637,70 @@
         { name: 'SoundCloud',  url: 'https://soundcloud.com/aarnxbrwn' },
         { name: 'Bandcamp',    url: 'https://aarnxbrwn.bandcamp.com' },
       ],
-      beehiiv: 'https://YOUR-NAME.beehiiv.com/subscribe', // ← swap after Beehiiv setup
+      beehiiv: 'https://YOUR-NAME.beehiiv.com/subscribe',
     };
 
     /* ================================================================
-       CANVAS STATIC — 20fps chunky pixel noise
+       REALISTIC TV STATIC
+       - Gaussian-ish grey distribution (bell curve via summed randoms)
+       - Per-row scanline brightness variance
+       - Horizontal noise correlation (elongated pixel texture)
+       - Drifting interference band
+       - Per-frame luminance drift
     ================================================================ */
     (function () {
       const canvas = document.getElementById('hero-static');
       const ctx    = canvas.getContext('2d');
-      let last     = 0;
-      const FPS    = 20;
+      const w = canvas.width, h = canvas.height;
+      let last = 0;
+      const FPS = 24;
+
+      let bandY      = h * 0.4;
+      let brightness = 128;
 
       function draw(ts) {
         requestAnimationFrame(draw);
         if (ts - last < 1000 / FPS) return;
         last = ts;
 
-        const { width: w, height: h } = canvas;
+        // Drift overall brightness each frame
+        brightness += (Math.random() - 0.5) * 7;
+        brightness = Math.min(148, Math.max(108, brightness));
+
+        // Advance interference band (drifts slowly upward, wraps)
+        bandY -= 0.55 + Math.random() * 0.25;
+        if (bandY < -8) bandY = h + 6;
+
         const img = ctx.createImageData(w, h);
         const d   = img.data;
 
-        for (let i = 0; i < d.length; i += 4) {
-          const v = Math.random() > 0.5 ? 255 : 0;
-          d[i] = d[i + 1] = d[i + 2] = v;
-          d[i + 3] = 255;
+        for (let y = 0; y < h; y++) {
+          // Per-scanline brightness bias — creates the horizontal banding
+          const rowBias = (Math.random() - 0.5) * 22;
+
+          // Interference band: bright streak that drifts up the screen
+          const bDist     = Math.abs(y - bandY);
+          const bandBoost = bDist < 4 ? (4 - bDist) * 14 : 0;
+
+          // Horizontal noise seed with persistence (elongates noise into scanline texture)
+          let hNoise = Math.random() * 255;
+
+          for (let x = 0; x < w; x++) {
+            // Update horizontal noise with ~60% carry-forward (elongated texture)
+            hNoise = hNoise * 0.58 + Math.random() * 255 * 0.42;
+
+            // Gaussian-ish vertical noise: two randoms averaged, then scaled
+            const vNoise = (Math.random() + Math.random()) * 0.5 * 255;
+
+            // Mix h and v noise; h gives texture, v gives grain
+            let v = hNoise * 0.38 + vNoise * 0.62;
+            v += (brightness - 128) + rowBias + bandBoost;
+            v = v < 0 ? 0 : v > 255 ? 255 : v;
+
+            const i = (y * w + x) * 4;
+            d[i] = d[i+1] = d[i+2] = v;
+            d[i+3] = 255;
+          }
         }
 
         ctx.putImageData(img, 0, 0);
@@ -643,12 +716,10 @@
 
     const list = document.getElementById('platform-list');
     CONFIG.platforms.forEach(p => {
-      const a       = document.createElement('a');
-      a.href        = p.url;
-      a.target      = '_blank';
-      a.rel         = 'noopener';
-      a.className   = 'plat-item';
-      a.innerHTML   = `<span>${p.name}</span>${arrowSVG}`;
+      const a = document.createElement('a');
+      a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
+      a.className = 'plat-item';
+      a.innerHTML = `<span>${p.name}</span>${arrowSVG}`;
       list.appendChild(a);
     });
 
@@ -678,34 +749,72 @@
     });
 
     /* ================================================================
+       CHANNEL SCAN — on hover, rapidly cycle through channel numbers
+       before landing on the correct one
+    ================================================================ */
+    document.querySelectorAll('.block-wrap').forEach((wrap, idx) => {
+      const numEl    = wrap.querySelector('.ch-num');
+      const finalNum = 'CH 0' + (idx + 1);
+      let scanTimer  = null;
+
+      wrap.addEventListener('mouseenter', () => {
+        clearInterval(scanTimer);
+        let ticks = 0;
+        scanTimer = setInterval(() => {
+          const r = Math.floor(Math.random() * 98) + 1;
+          numEl.textContent = 'CH ' + (r < 10 ? '0' + r : r);
+          ticks++;
+          if (ticks >= 9) {
+            clearInterval(scanTimer);
+            numEl.textContent = finalNum;
+          }
+        }, 24);
+      });
+
+      wrap.addEventListener('mouseleave', () => {
+        clearInterval(scanTimer);
+        numEl.textContent = finalNum;
+      });
+    });
+
+    /* ================================================================
+       PERIODIC SYNC GLITCH — occasional 1-frame TV signal dropout
+    ================================================================ */
+    (function scheduleGlitch() {
+      const delay = 18000 + Math.random() * 14000;
+      setTimeout(() => {
+        document.body.classList.add('glitch');
+        setTimeout(() => {
+          document.body.classList.remove('glitch');
+          scheduleGlitch();
+        }, 60);
+      }, delay);
+    })();
+
+    /* ================================================================
        GSAP
     ================================================================ */
     window.addEventListener('load', () => {
       if (typeof gsap === 'undefined') return;
       gsap.registerPlugin(ScrollTrigger);
 
-      /* Logo fades in after TV bars finish (~1.4s) */
       gsap.to('#hero-content', {
         opacity: 1, duration: 0.75, ease: 'power2.out', delay: 1.45
       });
 
-      /* Section blocks scroll in */
       gsap.utils.toArray('.block').forEach((el, i) => {
         gsap.to(el, {
-          opacity: 1, y: 0,
-          duration: 0.8, ease: 'power3.out',
+          opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
           delay: i * 0.06,
           scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' }
         });
       });
 
-      /* Platform links stagger when Music opens */
       document.querySelector('[data-section="music"] .block-header')
         .addEventListener('click', () => setTimeout(() => {
           gsap.from('.plat-item', { opacity: 0, x: -12, duration: 0.3, stagger: 0.06, ease: 'power2.out' });
         }, 60));
 
-      /* Channel links stagger when Videos opens */
       document.querySelector('[data-section="videos"] .block-header')
         .addEventListener('click', () => setTimeout(() => {
           gsap.from('.ch-link', { opacity: 0, y: 8, duration: 0.3, stagger: 0.08, ease: 'power2.out' });
