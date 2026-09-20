@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>AARNxBRWN</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+  <style>
+    /* ================================================================
+       RESET
+    ================================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; background: #000; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ================================================================
+       HERO
+    ================================================================ */
+    #hero {
+      position: relative;
+      height: 100svh;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Mercury blob stage — goo filter applied here */
+    .mercury-stage {
+      position: absolute;
+      inset: 0;
+      filter: url(#goo);
+      z-index: 0;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .blob-1 {
+      width: clamp(220px, 58vw, 420px);
+      height: clamp(220px, 58vw, 420px);
+      left: -12%;
+      top: 22%;
+      background: radial-gradient(circle at 35% 35%, #d4d4d4, #646464 40%, #1c1c1c);
+      animation: morph1 15s ease-in-out infinite;
+    }
+
+    .blob-2 {
+      width: clamp(160px, 42vw, 300px);
+      height: clamp(160px, 42vw, 300px);
+      right: -10%;
+      top: 32%;
+      background: radial-gradient(circle at 40% 35%, #c8c8c8, #545454 42%, #181818);
+      animation: morph2 12s ease-in-out infinite;
+    }
+
+    .blob-3 {
+      width: clamp(100px, 26vw, 200px);
+      height: clamp(100px, 26vw, 200px);
+      left: 34%;
+      bottom: 16%;
+      background: radial-gradient(circle at 45% 40%, #b8b8b8, #424242 50%, #101010);
+      animation: morph3 18s ease-in-out infinite;
+    }
+
+    @keyframes morph1 {
+      0%,100% { border-radius:58% 42% 35% 65%/52% 38% 62% 48%; transform:translate(0,0) scale(1); }
+      25%      { border-radius:42% 58% 55% 45%/68% 32% 68% 32%; transform:translate(22px,-18px) scale(1.06); }
+      50%      { border-radius:65% 35% 42% 58%/38% 62% 38% 62%; transform:translate(-18px,28px) scale(0.94); }
+      75%      { border-radius:38% 62% 68% 32%/55% 45% 55% 45%; transform:translate(12px,-10px) scale(1.09); }
+    }
+
+    @keyframes morph2 {
+      0%,100% { border-radius:45% 55% 60% 40%/50% 60% 40% 50%; transform:translate(0,0) scale(1); }
+      33%      { border-radius:62% 38% 42% 58%/38% 52% 48% 62%; transform:translate(-28px,18px) scale(1.12); }
+      66%      { border-radius:38% 62% 55% 45%/62% 38% 62% 38%; transform:translate(16px,-22px) scale(0.91); }
+    }
+
+    @keyframes morph3 {
+      0%,100% { border-radius:52% 48% 44% 56%/48% 56% 44% 52%; transform:translate(0,0) scale(1); }
+      40%      { border-radius:68% 32% 58% 42%/32% 68% 42% 58%; transform:translate(20px,-14px) scale(1.14); }
+      80%      { border-radius:40% 60% 35% 65%/60% 40% 68% 32%; transform:translate(-14px,20px) scale(0.87); }
+    }
+
+    /* Hero content */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .logo-img {
+      max-width: 260px;
+      width: 78vw;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      animation: logoGlow 5s ease-in-out infinite;
+    }
+
+    @keyframes logoGlow {
+      0%,100% { filter: drop-shadow(0 0 18px rgba(190,190,190,0.18)); }
+      50%      { filter: drop-shadow(0 0 44px rgba(220,220,220,0.48)) brightness(1.1); }
+    }
+
+    /* Text fallback — shows when logo.png is missing */
+    .logo-text {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(54px, 17vw, 92px);
+      letter-spacing: 4px;
+      line-height: 1;
+      display: none;
+      background: linear-gradient(180deg, #fff 0%, #bbb 28%, #fff 52%, #888 78%, #eee 100%);
+      background-size: 100% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: chromeFlow 5s ease-in-out infinite;
+    }
+
+    @keyframes chromeFlow {
+      0%,100% { background-position: 0% 0%; }
+      50%      { background-position: 0% 100%; }
+    }
+
+    .hero-tagline {
+      margin-top: 14px;
+      font-size: 10px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      font-weight: 300;
+    }
+
+    /* Scroll indicator */
+    .scroll-cue {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.22);
+      animation: cueFloat 2.6s ease-in-out infinite;
+    }
+
+    .scroll-cue-text {
+      font-size: 8px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    .scroll-cue-line {
+      width: 1px;
+      height: 38px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    }
+
+    @keyframes cueFloat {
+      0%,100% { transform: translateX(-50%) translateY(0);  opacity: 0.55; }
+      50%      { transform: translateX(-50%) translateY(7px); opacity: 0.25; }
+    }
+
+    /* ================================================================
+       SECTIONS WRAPPER
+    ================================================================ */
+    #sections {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ================================================================
+       BLOCK BASE
+    ================================================================ */
+    .block {
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      /* GSAP start state */
+      opacity: 0;
+      transform: translateY(36px);
+    }
+
+    /* Sweeping chrome sheen — unique timing per block */
+    .block::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      left: -100%;
+      width: 55%;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255,255,255,0.025) 38%,
+        rgba(255,255,255,0.07)  50%,
+        rgba(255,255,255,0.025) 62%,
+        transparent
+      );
+      z-index: 2;
+      pointer-events: none;
+      animation: sheenPass 9s ease-in-out infinite;
+    }
+
+    .block[data-section="music"]::before  { animation-delay: 0s; }
+    .block[data-section="videos"]::before { animation-delay: 2.25s; }
+    .block[data-section="store"]::before  { animation-delay: 4.5s; }
+    .block[data-section="email"]::before  { animation-delay: 6.75s; }
+
+    @keyframes sheenPass {
+      0%,55%,100% { left: -100%; opacity: 0; }
+      65%          { left:   50%; opacity: 1; }
+      75%          { left:  160%; opacity: 0; }
+    }
+
+    /* Chrome bottom edge glow on hover */
+    .block::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 8%; right: 8%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,200,200,0.4), transparent);
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .block:hover::after { opacity: 1; }
+
+    /* Per-block animated dark backgrounds */
+    .block-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .block[data-section="music"]  .block-bg {
+      background: radial-gradient(ellipse at 0% 50%, #1c1c1c 0%, #000 65%);
+      animation: bgBreath 13s ease-in-out infinite;
+    }
+
+    .block[data-section="videos"] .block-bg {
+      background: radial-gradient(ellipse at 100% 50%, #161616 0%, #000 65%);
+      animation: bgBreath 10s ease-in-out infinite 3.5s;
+    }
+
+    .block[data-section="store"]  .block-bg {
+      background: radial-gradient(ellipse at 50% 0%, #181818 0%, #000 65%);
+      animation: bgBreath 15s ease-in-out infinite 7s;
+    }
+
+    .block[data-section="email"]  .block-bg {
+      background: radial-gradient(ellipse at 50% 100%, #141414 0%, #000 65%);
+      animation: bgBreath 11s ease-in-out infinite 10.5s;
+    }
+
+    @keyframes bgBreath {
+      0%,100% { opacity: 0.65; transform: scale(1); }
+      50%      { opacity: 1;    transform: scale(1.06); }
+    }
+
+    /* ================================================================
+       BLOCK HEADER
+    ================================================================ */
+    .block-header {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      min-height: 112px;
+      text-decoration: none;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .block-label {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(46px, 13.5vw, 70px);
+      letter-spacing: 3px;
+      line-height: 1;
+      background: linear-gradient(180deg,
+        #ffffff 0%,
+        #d6d6d6 20%,
+        #ffffff 42%,
+        #8c8c8c 66%,
+        #dedede 84%,
+        #ffffff 100%
+      );
+      background-size: 100% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: labelChrome 7s ease-in-out infinite;
+      transition: letter-spacing 0.35s ease;
+    }
+
+    .block[data-section="music"]  .block-label { animation-delay: 0s; }
+    .block[data-section="videos"] .block-label { animation-delay: 1.75s; }
+    .block[data-section="store"]  .block-label { animation-delay: 3.5s; }
+    .block[data-section="email"]  .block-label { animation-delay: 5.25s; }
+
+    @keyframes labelChrome {
+      0%,100% { background-position: 0% 0%; }
+      50%      { background-position: 0% 100%; }
+    }
+
+    .block:hover .block-label { letter-spacing: 5px; }
+
+    /* Plus icon for expandable blocks */
+    .block-icon {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      position: relative;
+      opacity: 0.4;
+      transition: opacity 0.3s, transform 0.42s cubic-bezier(0.34,1.4,0.64,1);
+    }
+
+    .block-icon::before,
+    .block-icon::after {
+      content: '';
+      position: absolute;
+      background: #fff;
+      border-radius: 1px;
+      transition: transform 0.42s cubic-bezier(0.34,1.4,0.64,1);
+    }
+
+    .block-icon::before { width: 2px; height: 100%; left: 50%; top: 0; transform: translateX(-50%); }
+    .block-icon::after  { width: 100%; height: 2px; top: 50%; left: 0; transform: translateY(-50%); }
+
+    .block:hover .block-icon    { opacity: 0.75; }
+    .block.is-open .block-icon  { opacity: 1; transform: rotate(45deg); }
+
+    /* Arrow icon for direct-link blocks */
+    .block-arrow {
+      flex-shrink: 0;
+      opacity: 0.4;
+      transition: opacity 0.3s, transform 0.3s ease;
+    }
+
+    .block:hover .block-arrow { opacity: 1; transform: translateX(5px); }
+
+    /* ================================================================
+       EXPANDABLE BODY
+    ================================================================ */
+    .block-body {
+      position: relative;
+      z-index: 3;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.58s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .block.is-open .block-body { max-height: 760px; }
+
+    .block-body-inner { padding: 4px 24px 32px; }
+
+    /* ================================================================
+       MUSIC — PLATFORM GRID
+    ================================================================ */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .platform-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 15px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.025);
+      text-decoration: none;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, background 0.3s, transform 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Sweep on hover */
+    .platform-link::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      transform: translateX(-110%);
+      transition: transform 0.45s ease;
+    }
+
+    .platform-link:hover {
+      border-color: rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.055);
+      transform: translateY(-2px);
+    }
+
+    .platform-link:hover::after { transform: translateX(110%); }
+
+    .platform-link.full { grid-column: 1 / -1; }
+
+    .p-icon {
+      font-size: 17px;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+
+    .p-name {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.72);
+    }
+
+    /* ================================================================
+       VIDEOS — EMBED + CHANNEL LINKS
+    ================================================================ */
+    .embed-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      background: #080808;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .embed-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .ch-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .ch-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.025);
+      text-decoration: none;
+      color: rgba(255,255,255,0.68);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: border-color 0.3s, background 0.3s, color 0.3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .ch-link:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+
+    /* ================================================================
+       FOOTER
+    ================================================================ */
+    footer {
+      padding: 50px 24px 44px;
+      text-align: center;
+    }
+
+    .footer-mark {
+      width: 36px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,200,200,0.22), transparent);
+      margin: 0 auto 18px;
+    }
+
+    footer small {
+      font-size: 9px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.14);
+    }
+
+    /* ================================================================
+       DESKTOP
+    ================================================================ */
+    @media (min-width: 640px) {
+      .block-header     { padding: 0 40px; min-height: 130px; }
+      .block-body-inner { padding: 4px 40px 40px; }
+    }
+
+    @media (min-width: 900px) {
+      #sections {
+        max-width: 700px;
+        margin: 0 auto;
+        border-left:  1px solid rgba(255,255,255,0.04);
+        border-right: 1px solid rgba(255,255,255,0.04);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG goo filter — makes blobs merge like liquid mercury -->
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="goo" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur"/>
+        <feColorMatrix in="blur" type="matrix"
+          values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -9"
+          result="goo"/>
+        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ================================================================
+       HERO
+  ================================================================ -->
+  <section id="hero">
+
+    <div class="mercury-stage" aria-hidden="true">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <div class="hero-content" id="hero-content">
+      <!--
+        Drop your logo PNG into this folder and name it logo.png.
+        The chrome text below shows automatically until then.
+      -->
+      <img
+        src="logo.png"
+        alt="AARNxBRWN"
+        class="logo-img"
+        id="logo-img"
+        onerror="this.style.display='none';document.getElementById('logo-text').style.display='block';"
+      >
+      <div class="logo-text" id="logo-text">AARNxBRWN</div>
+      <p class="hero-tagline">music &nbsp;·&nbsp; art &nbsp;·&nbsp; culture</p>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true">
+      <span class="scroll-cue-text">scroll</span>
+      <div class="scroll-cue-line"></div>
+    </div>
+
+  </section>
+
+  <!-- ================================================================
+       SECTIONS
+  ================================================================ -->
+  <main id="sections">
+
+    <!-- MUSIC -->
+    <div class="block" data-section="music" data-expandable>
+      <div class="block-bg" aria-hidden="true"></div>
+      <div class="block-header" role="button" aria-expanded="false" tabindex="0">
+        <span class="block-label">Music</span>
+        <span class="block-icon" aria-hidden="true"></span>
+      </div>
+      <div class="block-body">
+        <div class="block-body-inner">
+          <div class="platform-grid" id="platform-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEOS -->
+    <div class="block" data-section="videos" data-expandable>
+      <div class="block-bg" aria-hidden="true"></div>
+      <div class="block-header" role="button" aria-expanded="false" tabindex="0">
+        <span class="block-label">Videos</span>
+        <span class="block-icon" aria-hidden="true"></span>
+      </div>
+      <div class="block-body">
+        <div class="block-body-inner">
+          <div class="embed-wrap">
+            <!--
+              This embeds "Front Line (Official Visualizer)".
+              To change the featured video, swap the video ID in the src URL.
+              Format: https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1
+            -->
+            <iframe
+              src="https://www.youtube.com/embed/0YApNPyQesI?rel=0&modestbranding=1"
+              title="AARNxBRWN – Front Line (Official Visualizer)"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
+          </div>
+          <div class="ch-links">
+            <a href="https://www.youtube.com/channel/UCxXbQXy8jZDstrgLcoQsRxQ" target="_blank" rel="noopener" class="ch-link">
+              ▶&nbsp; Topic Channel
+            </a>
+            <a href="https://www.youtube.com/@aarnxbrwn7126" target="_blank" rel="noopener" class="ch-link">
+              ▶&nbsp; Main Channel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STORE -->
+    <a class="block" data-section="store"
+       href="https://aarnxbrwn.bandcamp.com"
+       target="_blank" rel="noopener">
+      <div class="block-bg" aria-hidden="true"></div>
+      <div class="block-header">
+        <span class="block-label">Store</span>
+        <span class="block-arrow" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- EMAIL LIST -->
+    <a class="block" data-section="email"
+       href="https://YOUR-NAME.beehiiv.com/subscribe"
+       target="_blank" rel="noopener"
+       id="email-block">
+      <div class="block-bg" aria-hidden="true"></div>
+      <div class="block-header">
+        <span class="block-label">Email List</span>
+        <span class="block-arrow" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+  </main>
+
+  <footer>
+    <div class="footer-mark"></div>
+    <small>© 2025 AARNxBRWN</small>
+  </footer>
+
+  <!-- ================================================================
+       SCRIPT
+  ================================================================ -->
+  <script>
+    /* ================================================================
+       CONFIG — only touch this block to update links
+    ================================================================ */
+    const CONFIG = {
+      platforms: [
+        {
+          name: 'Apple Music',
+          icon: '♫',
+          url:  'https://music.apple.com/us/artist/aarnxbrwn/1291517666'
+        },
+        {
+          name: 'Spotify',
+          icon: '◎',
+          url:  'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1'
+        },
+        {
+          name: 'Tidal',
+          icon: '◈',
+          url:  'https://tidal.com/artist/9155431'
+        },
+        {
+          name: 'SoundCloud',
+          icon: '◉',
+          url:  'https://soundcloud.com/aarnxbrwn'
+        },
+        {
+          name: 'Bandcamp',
+          icon: '◆',
+          url:  'https://aarnxbrwn.bandcamp.com',
+          wide: true   // spans both columns
+        },
+      ],
+
+      // Swap this URL after setting up Beehiiv
+      beehiiv: 'https://YOUR-NAME.beehiiv.com/subscribe',
+    };
+
+    /* ================================================================
+       BUILD PLATFORM GRID
+    ================================================================ */
+    const grid = document.getElementById('platform-grid');
+
+    CONFIG.platforms.forEach(p => {
+      const a = document.createElement('a');
+      a.href      = p.url;
+      a.target    = '_blank';
+      a.rel       = 'noopener';
+      a.className = 'platform-link' + (p.wide ? ' full' : '');
+      a.innerHTML = `<span class="p-icon">${p.icon}</span><span class="p-name">${p.name}</span>`;
+      grid.appendChild(a);
+    });
+
+    /* Sync Beehiiv URL from config */
+    document.getElementById('email-block').href = CONFIG.beehiiv;
+
+    /* ================================================================
+       EXPAND / COLLAPSE
+    ================================================================ */
+    function toggleBlock(block) {
+      const opening = !block.classList.contains('is-open');
+
+      // Close all
+      document.querySelectorAll('[data-expandable]').forEach(b => {
+        b.classList.remove('is-open');
+        b.querySelector('.block-header').setAttribute('aria-expanded', 'false');
+      });
+
+      // Open clicked
+      if (opening) {
+        block.classList.add('is-open');
+        block.querySelector('.block-header').setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    document.querySelectorAll('[data-expandable]').forEach(block => {
+      const header = block.querySelector('.block-header');
+
+      header.addEventListener('click', () => toggleBlock(block));
+
+      header.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleBlock(block);
+        }
+      });
+    });
+
+    /* ================================================================
+       GSAP SCROLL ANIMATIONS
+    ================================================================ */
+    window.addEventListener('load', () => {
+      if (typeof gsap === 'undefined') return;
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Hero entrance
+      gsap.from('#hero-content', {
+        opacity: 0,
+        y: 28,
+        duration: 1.7,
+        ease: 'power3.out',
+        delay: 0.1
+      });
+
+      gsap.from('.scroll-cue', {
+        opacity: 0,
+        duration: 1.2,
+        delay: 2
+      });
+
+      // Blocks scroll in with stagger
+      gsap.utils.toArray('.block').forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.78,
+          ease: 'power3.out',
+          delay: i * 0.07,
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
+        });
+      });
+
+      // Platform links stagger in when Music expands
+      document.querySelector('[data-section="music"] .block-header')
+        .addEventListener('click', () => {
+          setTimeout(() => {
+            gsap.from('.platform-link', {
+              opacity: 0,
+              x: -18,
+              duration: 0.36,
+              stagger: 0.075,
+              ease: 'power2.out'
+            });
+          }, 60);
+        });
+
+      // Channel links stagger in when Videos expands
+      document.querySelector('[data-section="videos"] .block-header')
+        .addEventListener('click', () => {
+          setTimeout(() => {
+            gsap.from('.ch-link', {
+              opacity: 0,
+              x: -18,
+              duration: 0.36,
+              stagger: 0.1,
+              ease: 'power2.out'
+            });
+          }, 60);
+        });
+    });
+  </script>
+
+</body>
+</html>
