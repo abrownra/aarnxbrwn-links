@@ -120,6 +120,15 @@
       font-size: clamp(58px,18vw,96px); letter-spacing: 5px;
       line-height: 1; display: none; color: #fff;
     }
+
+    .hero-tagline {
+      margin-top: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; font-weight: 300;
+      letter-spacing: 7px; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      text-align: center; min-height: 1em;
+    }
     .hero-fade {
       position: absolute; bottom: 0; left: 0; right: 0;
       height: 120px; background: linear-gradient(to bottom, transparent, #000);
@@ -448,6 +457,7 @@
       <img src="logo.svg" alt="AARNxBRWN" class="logo-img" id="logo-img"
            onerror="this.style.display='none';document.getElementById('logo-text').style.display='block';">
       <div class="logo-text" id="logo-text">AARNxBRWN</div>
+      <p class="hero-tagline" id="hero-tagline"></p>
     </div>
 
     <div class="hero-fade" aria-hidden="true"></div>
@@ -833,8 +843,19 @@
       }
       gsap.registerPlugin(ScrollTrigger);
 
-      /* Logo reveal */
-      gsap.to('#hero-content', { opacity: 1, duration: 0.75, ease: 'power2.out', delay: 1.45 });
+      /* Logo reveal → then type tagline */
+      gsap.to('#hero-content', {
+        opacity: 1, duration: 0.75, ease: 'power2.out', delay: 1.45,
+        onComplete: () => {
+          const el = document.getElementById('hero-tagline');
+          const text = 'Eternal.';
+          let i = 0;
+          const t = setInterval(() => {
+            el.textContent += text[i++];
+            if (i >= text.length) clearInterval(t);
+          }, 72);
+        }
+      });
 
       /* Set initial clip-path state for the split-reveal entrance */
       gsap.set('.block', { clipPath: 'inset(50% 0 50% 0)', opacity: 0 });
