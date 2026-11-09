@@ -4,7 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
+  <!-- Vercel Web Analytics (enable in Vercel → Project → Analytics). Channel tunes are
+       recorded as pageviews of /ch/<id>, which the free plan supports. -->
+  <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+  <script defer src="/_vercel/insights/script.js"></script>
   <title>AARNxBRWN</title>
+  <meta name="description" content="AARNxBRWN — tune in. Music, videos and 43VA All Along, March 2027.">
+  <link rel="canonical" href="https://aarnxbrwn.stream/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AARNxBRWN">
+  <meta property="og:title" content="AARNxBRWN">
+  <meta property="og:description" content="Tune in. Music, videos and 43VA All Along — March 2027.">
+  <meta property="og:url" content="https://aarnxbrwn.stream/">
+  <meta property="og:image" content="https://aarnxbrwn.stream/og/home.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AARNxBRWN">
+  <meta name="twitter:description" content="Tune in. Music, videos and 43VA All Along — March 2027.">
+  <meta name="twitter:image" content="https://aarnxbrwn.stream/og/home.jpg">
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -525,7 +545,22 @@
     #hero { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
     #hero-static { transition: opacity 0.35s; }
     #hero[data-ch]:not([data-ch="0"]) #hero-static { opacity: 0; }
-    #hero.tuning #hero-static { opacity: 0.95 !important; transition: none; }
+    /* Channel change: static floods in, flickers and rolls, then fades off */
+    #hero.tuning #hero-static {
+      transition: none;
+      animation: tuneRoll 0.74s steps(1) both;
+    }
+    #hero.tuning #hero-fog { transition: opacity 0.25s; }
+    @keyframes tuneRoll {
+      0%   { opacity: 1;    transform: translateY(0);    filter: contrast(1.3); }
+      12%  { opacity: 0.7;  transform: translateY(-6%);  filter: contrast(1.6) brightness(1.3); }
+      24%  { opacity: 1;    transform: translateY(4%); }
+      38%  { opacity: 0.85; transform: translateY(-2%);  filter: contrast(1.2); }
+      52%  { opacity: 0.95; transform: translateY(0);    filter: brightness(1.15); }
+      70%  { opacity: 0.55; transform: translateY(1%); }
+      85%  { opacity: 0.3;  transform: translateY(0); }
+      100% { opacity: 0.12; transform: translateY(0);    filter: none; }
+    }
 
     #hero-fog {
       position: absolute; inset: -6%; width: 112%; height: 112%;
@@ -599,6 +634,399 @@
     }
     .cv-link.is-soon:hover { background: rgba(0,0,0,0.45); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 
+    /* ---------- Preview player + music pulse ---------- */
+    @property --pulse { syntax: '<number>'; inherits: true; initial-value: 0; }
+    #hero { --pulse: 0; }
+    #hero-fog { filter: blur(22px) saturate(1.15) brightness(calc(1 + var(--pulse) * 0.7)); }
+    .hero-ambient.is-on { filter: brightness(calc(1 + var(--pulse) * 0.9)); }
+    .cv-art.is-playable { cursor: pointer; }
+    .cv-art.is-playable::after { /* play glyph on hover */
+      content: ''; position: absolute; left: 50%; top: 50%; z-index: 3;
+      width: 0; height: 0; transform: translate(-35%, -50%);
+      border-left: 26px solid rgba(255,255,255,0.9);
+      border-top: 16px solid transparent; border-bottom: 16px solid transparent;
+      filter: drop-shadow(0 0 10px rgba(0,0,0,0.7));
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    }
+    .cv-art.is-playable:hover::after { opacity: 0.85; }
+    .cv-art.is-playing::after { opacity: 0 !important; }
+
+    .cv-np {
+      margin-top: 14px; width: min(64vw, 40svh, 340px);
+      font-family: 'VT323', monospace; font-size: 15px; letter-spacing: 3px;
+      text-transform: uppercase; color: rgba(255,255,255,0.55);
+      display: flex; flex-direction: column; gap: 6px; align-items: center;
+    }
+    .cv-np-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .cv-np.is-playing .cv-np-text { color: var(--accent); }
+    .cv-np-bar {
+      width: 100%; height: 2px; background: rgba(255,255,255,0.12);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .cv-np.is-playing .cv-np-bar { opacity: 1; }
+    .cv-np-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+    /* ---------- 43VA hype: premiere readout + signup ---------- */
+    .cv-links.is-hype { flex-direction: column; align-items: center; gap: 14px; }
+    .cv-premiere {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-family: 'VT323', monospace; text-transform: uppercase; color: var(--accent);
+      text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent);
+    }
+    .cv-prem-label { font-size: 14px; letter-spacing: 6px; opacity: 0.75; }
+    .cv-prem-time  { font-size: 34px; letter-spacing: 4px; line-height: 1; }
+    .cv-signal { display: flex; width: min(86vw, 340px); }
+    .cv-signal input {
+      flex: 1; min-width: 0; padding: 10px 12px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); border-right: 0;
+      font-family: 'VT323', monospace; font-size: 17px; letter-spacing: 1px; outline: none;
+      border-radius: 0; -webkit-appearance: none;
+    }
+    .cv-signal input::placeholder { color: rgba(255,255,255,0.35); }
+    .cv-signal input:focus { border-color: var(--accent); }
+    .cv-signal button {
+      padding: 0 14px; border: 1px solid var(--accent); background: var(--accent); color: #000;
+      font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; white-space: nowrap; border-radius: 0;
+    }
+    .cv-signal button:hover { filter: brightness(1.15); }
+    .cv-signal-ok {
+      width: 100%; text-align: center; font-family: 'VT323', monospace; font-size: 16px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--accent);
+    }
+
+    /* ---------- CRT switch-off when scrolling past the hero ---------- */
+    #hero::after {
+      content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px;
+      transform: translateY(-50%); background: #fff; z-index: 20;
+      box-shadow: 0 0 18px 4px rgba(255,255,255,0.8), 0 0 60px 10px var(--accent);
+      opacity: 0; pointer-events: none;
+    }
+    #hero.crt-off { animation: crtOff 0.55s cubic-bezier(0.6,0,0.9,0.6) forwards; }
+    #hero.crt-off::after { animation: crtLine 0.55s forwards; }
+    #hero.crt-on  { animation: crtOn 0.5s cubic-bezier(0.2,0.6,0.3,1) both; }
+    #hero.crt-on::after { animation: crtLine 0.5s reverse both; }
+    @keyframes crtOff {
+      0%   { transform: none;                 filter: none; }
+      45%  { transform: scale(1, 0.006);      filter: brightness(3); }
+      75%  { transform: scale(0.18, 0.006);   filter: brightness(4); opacity: 1; }
+      100% { transform: scale(0, 0.006);      filter: brightness(5); opacity: 0; }
+    }
+    @keyframes crtOn {
+      0%   { transform: scale(0, 0.006);      filter: brightness(5); opacity: 0; }
+      25%  { transform: scale(0.18, 0.006);   filter: brightness(4); opacity: 1; }
+      55%  { transform: scale(1, 0.006);      filter: brightness(3); }
+      100% { transform: none;                 filter: none; }
+    }
+    @keyframes crtLine { 0%, 30% { opacity: 0; } 45%, 85% { opacity: 1; } 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { #hero.crt-off, #hero.crt-on, #hero::after { animation: none !important; } }
+
+    /* ---------- CH 777 — secret singles channel ---------- */
+    /* On-theme SoundCloud player: SC's widget is hidden, driven via its Widget API */
+    .cv-art.cv-sc {
+      display: flex; flex-direction: column;
+      max-height: min(56svh, 470px);   /* always fits between the top and the dots */
+      width: min(90vw, 420px); line-height: 1.2; text-align: left;
+      background: rgba(0,0,0,0.82);
+      border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.75), 0 0 80px color-mix(in srgb, var(--accent) 22%, transparent);
+      font-family: 'VT323', monospace; color: #fff; text-transform: uppercase;
+      user-select: none;
+    }
+    .cv-sc iframe.sc-hidden {
+      position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; border: 0; left: 0; top: 0;
+    }
+    .cv-sc iframe.sc-fallback { position: static; width: 100%; height: 166px; opacity: 1; pointer-events: auto; display: block; }
+    .sc-head {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--accent); color: #000; font-size: 19px; letter-spacing: 2px; padding: 2px 10px;
+    }
+    .sc-now { display: flex; gap: 12px; padding: 10px 12px 6px; align-items: center; flex-shrink: 0; }
+    .sc-art {
+      width: 64px; height: 64px; flex-shrink: 0; object-fit: cover; background: #111;
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    }
+    .sc-meta { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .sc-title {
+      font-size: 23px; letter-spacing: 1px; color: var(--accent); line-height: 1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+    }
+    .sc-artist { font-size: 15px; letter-spacing: 3px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sc-time { font-size: 16px; letter-spacing: 2px; color: rgba(255,255,255,0.7); }
+    .sc-bar { position: relative; height: 14px; margin: 0 12px; cursor: pointer; flex-shrink: 0; }
+    .sc-bar::before { content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: rgba(255,255,255,0.14); }
+    .sc-fill { position: absolute; left: 0; top: 6px; height: 2px; width: 0; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .sc-ctrls { display: flex; justify-content: center; align-items: center; gap: 24px; padding: 2px 0 6px; flex-shrink: 0; }
+    .sc-btn {
+      background: none; border: 0; color: #fff; cursor: pointer; padding: 4px 6px;
+      font-family: 'VT323', monospace; font-size: 26px; line-height: 1; letter-spacing: -2px;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+    .sc-btn:hover, .sc-btn:focus-visible { color: var(--accent); outline: none; text-shadow: 0 0 10px var(--accent); }
+    .sc-btn.sc-play {
+      width: 44px; height: 44px; border-radius: 50%; letter-spacing: 0; font-size: 21px;
+      border: 1px solid var(--accent); color: var(--accent);
+      box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 40%, transparent);
+    }
+    .sc-btn.sc-play:hover { background: var(--accent); color: #000; }
+    .sc-list {
+      list-style: none; margin: 0; padding: 4px 6px 6px;
+      flex: 1 1 auto; min-height: 0; overflow-y: auto;
+      border-top: 2px dotted color-mix(in srgb, var(--accent) 45%, transparent);
+      scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+    }
+    .sc-row {
+      display: flex; gap: 10px; width: 100%; align-items: baseline;
+      background: none; border: 0; color: rgba(255,255,255,0.8); cursor: pointer;
+      font: inherit; font-size: 19px; letter-spacing: 1px; text-transform: uppercase;
+      padding: 3px 8px; text-align: left;
+    }
+    .sc-row:hover, .sc-row:focus-visible { background: color-mix(in srgb, var(--accent) 18%, transparent); outline: none; }
+    .sc-row .n { color: var(--accent); min-width: 2ch; }
+    .sc-row .t { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .sc-row .d { color: rgba(255,255,255,0.4); }
+    .sc-row.is-now { background: var(--accent); color: #000; }
+    .sc-row.is-now .n, .sc-row.is-now .d { color: #000; }
+    .sc-foot {
+      display: flex; justify-content: space-between; padding: 5px 12px 6px; flex-shrink: 0;
+      font-size: 14px; letter-spacing: 3px; color: rgba(255,255,255,0.4);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sc-foot a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .sc-foot a:hover { color: var(--accent); }
+    .sc-status { color: var(--accent); }
+    .cv-sc iframe.sc-fallback { flex-shrink: 0; height: 120px; }
+    .amb-reel {
+      position: absolute; top: 0; left: var(--x); width: 1ch;
+      font-family: 'VT323', monospace; font-size: clamp(90px, 16vw, 170px); line-height: 1;
+      color: #ffd36b; opacity: var(--o); white-space: normal; word-break: break-all;
+      text-shadow: 0 0 18px rgba(255,200,80,0.6);
+      animation: reelSpin var(--d) linear infinite var(--delay);
+    }
+    @keyframes reelSpin { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+
+    /* ---------- Teletext track guide ---------- */
+    .cv-guide-btn {
+      margin-top: 10px; background: none; border: 0; cursor: pointer;
+      font-family: 'VT323', monospace; font-size: 15px; letter-spacing: 4px;
+      color: rgba(255,255,255,0.5); text-transform: uppercase; padding: 4px 8px;
+      transition: color 0.2s;
+    }
+    .cv-guide-btn:hover, .cv-guide-btn:focus-visible { color: var(--accent); outline: none; }
+    .cv-actions { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
+    .cv-actions .cv-guide-btn { margin-top: 6px; }
+    .tv-guide {
+      position: absolute; inset: 0; z-index: 9;
+      background: rgba(0,0,0,0.93);
+      display: none; flex-direction: column;
+      padding: 18px 16px 70px;
+      font-family: 'VT323', monospace; color: #fff;
+    }
+    .tv-guide.is-open { display: flex; animation: guideOn 0.28s steps(4) both; }
+    @keyframes guideOn { from { clip-path: inset(49% 0 49% 0); } to { clip-path: inset(0 0 0 0); } }
+    .tg-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      background: var(--accent); color: #000;
+      font-size: 20px; letter-spacing: 2px; padding: 2px 10px; text-transform: uppercase;
+    }
+    .tg-sub {
+      display: flex; justify-content: space-between;
+      font-size: 16px; letter-spacing: 3px; color: var(--accent);
+      padding: 10px 2px 8px; text-transform: uppercase;
+      border-bottom: 2px dotted color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+    .tg-list {
+      list-style: none; margin: 8px 0 0; padding: 0; overflow-y: auto; flex: 1;
+      display: grid; grid-template-columns: 1fr; align-content: start; column-gap: 32px;
+    }
+    @media (min-width: 760px) { .tg-list { grid-template-columns: 1fr 1fr; } .tv-guide { padding: 28px 8vw 80px; } }
+    .tg-row {
+      display: flex; gap: 12px; align-items: baseline; width: 100%;
+      background: none; border: 0; color: rgba(255,255,255,0.82); cursor: pointer;
+      font: inherit; font-size: 21px; letter-spacing: 1px; text-transform: uppercase;
+      padding: 5px 4px; text-align: left;
+    }
+    .tg-row:hover, .tg-row:focus-visible { background: color-mix(in srgb, var(--accent) 18%, transparent); outline: none; }
+    .tg-n { color: var(--accent); min-width: 2ch; }
+    .tg-t { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .tg-t::after { content: ' ................................................'; color: rgba(255,255,255,0.18); }
+    .tg-p { color: rgba(255,255,255,0.35); }
+    .tg-row.is-now { color: #000; background: var(--accent); }
+    .tg-row.is-now .tg-n, .tg-row.is-now .tg-p { color: #000; }
+    .tg-row.is-now .tg-t::after { color: rgba(0,0,0,0.3); }
+    .tg-foot {
+      display: flex; justify-content: space-between; margin-top: 10px;
+      font-size: 16px; letter-spacing: 3px; text-transform: uppercase;
+    }
+    .tg-foot span { color: rgba(255,255,255,0.4); }
+    .tg-exit {
+      background: none; border: 0; color: var(--accent); cursor: pointer;
+      font: inherit; letter-spacing: 3px; text-transform: uppercase; padding: 0;
+    }
+    .tg-blink { animation: blink 1s step-end infinite; }
+
+    /* ---------- Per-album motifs ---------- */
+    .cv-art { position: relative; line-height: 0; }
+    .cv-art { transform: scale(calc(1 + var(--pulse) * 0.018)); }
+
+    /* Ghost — apparition flicker + a drifting translucent double */
+    .cv-art[data-motif="ghost"] .cv-cover { animation: apparition 7s infinite; }
+    .cv-ghost {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; pointer-events: none;
+      opacity: 0.22; mix-blend-mode: screen; filter: blur(1.5px) saturate(1.4);
+      animation: ghostDrift 9s ease-in-out infinite;
+    }
+    @keyframes apparition {
+      0%, 58%, 66%, 86%, 92%, 100% { opacity: 1; filter: none; }
+      60% { opacity: 0.55; filter: blur(1px); }
+      61% { opacity: 0.9; }
+      63% { opacity: 0.4; filter: blur(2px) brightness(1.3); }
+      64% { opacity: 0.85; filter: none; }
+      88% { opacity: 0.6; filter: blur(1px); }
+    }
+    @keyframes ghostDrift {
+      0%, 100% { transform: translate(-7px, -2px); opacity: 0.18; }
+      50%      { transform: translate( 8px,  3px); opacity: 0.3; }
+    }
+
+    /* Save Me I'm Drowning — smooth water warp (canvas, see startWater) */
+    canvas.cv-cover { height: auto; }
+
+    /* Come Home — embers rising around the cover */
+    .cv-embers {
+      position: absolute; left: -22%; right: -22%; top: -40%; bottom: 0;
+      pointer-events: none; z-index: 2;
+    }
+    .cv-ember {
+      position: absolute; bottom: 0; left: var(--x);
+      width: var(--s); height: var(--s); border-radius: 50%;
+      background: radial-gradient(circle, #ffd1a0 0%, #ff4a1c 45%, transparent 75%);
+      box-shadow: 0 0 6px 1px rgba(255,70,30,0.65);
+      opacity: 0;
+      animation: emberRise var(--d) linear var(--delay) infinite;
+    }
+    @keyframes emberRise {
+      0%   { opacity: 0;    transform: translate(0, 0) scale(1); }
+      10%  { opacity: 0.95; }
+      50%  { transform: translate(var(--sway), calc(var(--rise) * -0.5)) scale(0.85); }
+      80%  { opacity: 0.55; }
+      100% { opacity: 0;    transform: translate(calc(var(--sway) * -0.6), calc(var(--rise) * -1)) scale(0.35); }
+    }
+
+    /* 43VA — floating halo ring above the art */
+    .cv-halo {
+      position: absolute; left: 50%; top: -9%;
+      width: 44%; height: 9%;
+      border: 2px solid var(--accent); border-radius: 50%;
+      box-shadow: 0 0 14px 2px color-mix(in srgb, var(--accent) 70%, transparent),
+                  inset 0 0 10px 1px color-mix(in srgb, var(--accent) 50%, transparent);
+      transform: translateX(-50%);
+      animation: haloFloat 4.5s ease-in-out infinite, haloPulse 3s ease-in-out infinite;
+      pointer-events: none; z-index: 2;
+    }
+    @keyframes haloFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0)    rotate(-2deg); }
+      50%      { transform: translateX(-50%) translateY(-9px) rotate(2deg); }
+    }
+    @keyframes haloPulse {
+      0%, 100% { opacity: 0.75; }
+      50%      { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cv-art .cv-cover, .cv-ghost, .cv-ember, .cv-halo { animation: none !important; }
+      .cv-ember { display: none; }
+    }
+
+    /* Off screen: freeze every animation inside the hero (the CRT effect on #hero itself still runs) */
+    #hero.is-offscreen *, #hero.is-offscreen *::before, #hero.is-offscreen *::after { animation-play-state: paused !important; }
+
+    /* ---------- Per-album ambient background (subtle, full-hero) ---------- */
+    .hero-ambient {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+      opacity: 0; transition: opacity 1.4s ease;
+    }
+    .hero-ambient.is-on { opacity: 1; }
+
+    /* Ghost — neon tubes framing the screen */
+    .amb-neon {
+      position: absolute; border-radius: 3px;
+      background: linear-gradient(90deg, #ff2222, #ffd6d6 50%, #ff2222);
+      box-shadow: 0 0 6px 2px rgba(255,50,50,0.95), 0 0 22px 6px rgba(255,30,30,0.55),
+                  0 0 60px 12px rgba(255,20,20,0.25);
+      opacity: 0.75; animation: neonFlicker var(--d) infinite var(--delay);
+    }
+    .amb-neon.v { top: 7%; bottom: 12%; width: 3px; }
+    .amb-neon.h { left: 9%; right: 9%; height: 3px; top: 5%;
+      background: linear-gradient(180deg, #ff2222, #ffd6d6 50%, #ff2222); }
+    .amb-neon.h2 { top: 17%; left: 20%; right: 20%; --o: 0.45; }
+    /* angled rails converging toward the middle, like the cover's staircase lights */
+    .amb-neon.d { width: 3px; height: 46%; bottom: 14%; transform-origin: bottom center; }
+    .amb-neon.d.l { left: 16%; transform: rotate(32deg); }
+    .amb-neon.d.r { right: 16%; transform: rotate(-32deg); }
+    @keyframes neonFlicker {
+      0%, 70%, 74%, 90%, 100% { opacity: var(--o, 0.75); }
+      71% { opacity: 0.15; } 72% { opacity: 0.85; } 73% { opacity: 0.08; }
+      91% { opacity: 0.35; }
+    }
+
+    /* SMID — light shafts from the surface + slow bubbles */
+    .amb-shaft {
+      position: absolute; top: -10%; height: 85%; width: var(--w); left: var(--x);
+      background: linear-gradient(to bottom, rgba(255,190,245,0.28), rgba(190,170,255,0.11) 55%, transparent);
+      filter: blur(2px); transform-origin: top center;
+      animation: shaftSway var(--d) ease-in-out infinite var(--delay);
+    }
+    @keyframes shaftSway {
+      0%, 100% { transform: skewX(-14deg) rotate(-2.5deg); opacity: 0.7; }
+      50%      { transform: skewX(-10deg) rotate(2.5deg);  opacity: 1; }
+    }
+    /* Pool-floor caustics: two tiling layers of sharp light-web drifting
+       in different directions; where they cross, the lines shimmer */
+    .amb-caustic {
+      position: absolute; inset: 0;
+      background-image: var(--tex); background-repeat: repeat;
+      mix-blend-mode: screen; filter: blur(1.5px);
+      -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,0.85) 45%, transparent 95%);
+              mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,0.85) 45%, transparent 95%);
+    }
+    .amb-caustic.a { background-size: 300px 300px; opacity: 0.34; animation: causticA 36s linear infinite; }
+    .amb-caustic.b { background-size: 430px 430px; opacity: 0.22; animation: causticB 52s linear infinite; }
+    @keyframes causticA { from { background-position: 0 0; } to { background-position: 300px 300px; } }
+    @keyframes causticB { from { background-position: 0 0; } to { background-position: -430px 430px; } }
+
+    /* Come Home — low sunset glow + sparse embers */
+    .amb-horizon {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 48%;
+      background: radial-gradient(ellipse 90% 100% at 50% 100%, rgba(255,40,30,0.42), rgba(160,10,20,0.12) 50%, transparent 75%);
+      animation: horizonBreath 8s ease-in-out infinite;
+    }
+    @keyframes horizonBreath { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+    .hero-ambient .cv-ember { bottom: -10px; opacity: 0; }
+    .hero-ambient .amb-embers { position: absolute; inset: 0; opacity: 0.95; }
+
+    /* 43VA — sparse twinkling four-point sparkles */
+    .amb-star {
+      position: absolute; left: var(--x); top: var(--y);
+      width: var(--s); height: var(--s); background: #8dffcf;
+      clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+      filter: drop-shadow(0 0 6px rgba(111,240,182,1));
+      opacity: 0; animation: twinkle var(--d) ease-in-out infinite var(--delay);
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0;    transform: scale(0.4) rotate(0deg); }
+      50%      { opacity: 0.9;  transform: scale(1)   rotate(20deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-ambient * { animation: none !important; }
+      .hero-ambient .cv-ember { display: none; }
+      .amb-star { opacity: 0.35; }
+    }
+
     /* On-screen display — top-left channel readout like a real TV */
     .ch-osd {
       position: absolute; top: 22px; left: 22px; z-index: 8;
@@ -611,82 +1039,64 @@
     .ch-osd-num  { font-size: 38px; letter-spacing: 2px; display: block; }
     .ch-osd-name { font-size: 15px; letter-spacing: 4px; text-transform: uppercase; }
 
-    /* Controller pad — diagonal oval face buttons */
+    /* First-visit hint above the dots */
+    .ch-hint {
+      position: absolute; left: 0; right: 0; bottom: 118px; z-index: 8;
+      text-align: center; pointer-events: none;
+      font-family: 'VT323', monospace; font-size: 14px; letter-spacing: 5px;
+      text-transform: uppercase; color: rgba(255,255,255,0.65);
+      opacity: 0; transition: opacity 0.6s;
+    }
+    .ch-hint.is-on { opacity: 1; }
+    .ch-hint .arr { display: inline-block; animation: hintNudge 1.4s ease-in-out infinite; }
+    .ch-hint .arr.r { animation-direction: reverse; }
+    @keyframes hintNudge { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
+
+    /* Channel dots — minimal row of colored circles */
     .channel-pad {
-      position: absolute; left: 50%; bottom: 84px; z-index: 8;
+      position: absolute; left: 50%; bottom: 78px; z-index: 8;
       transform: translateX(-50%);
-      display: flex; align-items: flex-end; gap: 20px;
-      padding-top: 40px;
+      display: flex; align-items: center; gap: 4px;
       animation: padIn 0.7s ease 2.2s both;
     }
-    @keyframes padIn { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
-    .pad-readout {
-      position: absolute; top: -6px; left: 0; right: 0; text-align: center;
-      font-family: 'VT323', monospace; font-size: 14px; letter-spacing: 4px;
-      text-transform: uppercase; color: rgba(255,255,255,0.55);
-      white-space: nowrap; pointer-events: none;
-    }
-    .ch-key {
-      display: flex; flex-direction: column; align-items: center; gap: 11px;
-      transform: translateY(var(--lift, 0px));
-    }
-    .ch-key-num {
-      font-family: 'VT323', monospace; font-size: 13px; letter-spacing: 2px;
-      color: rgba(255,255,255,0.4); transition: color 0.3s;
-    }
-    .ch-key.is-active .ch-key-num { color: #fff; }
+    @keyframes padIn { from { opacity: 0; } to { opacity: 1; } }
+    .ch-key { display: flex; }
 
     .ch-btn {
       position: relative; display: block;
-      width: 52px; height: 38px; border-radius: 50%; border: 0; padding: 0;
-      background: var(--fill); cursor: pointer;
-      transform: rotate(-22deg);
-      box-shadow:
-        inset 0 -5px 0 rgba(0,0,0,0.38),
-        inset 0 3px 7px rgba(255,255,255,0.32),
-        0 5px 0 rgba(0,0,0,0.65),
-        0 9px 16px rgba(0,0,0,0.7);
-      transition: transform 0.08s, box-shadow 0.08s, filter 0.2s;
+      width: 30px; height: 30px; border: 0; padding: 0;  /* tap target */
+      background: none; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .ch-btn::before { /* specular highlight */
-      content: ''; position: absolute; left: 16%; top: 12%; width: 46%; height: 34%;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, rgba(255,255,255,0.55), transparent 70%);
-      pointer-events: none;
+    .ch-btn::before { /* the dot */
+      content: ''; position: absolute; left: 50%; top: 50%;
+      width: 10px; height: 10px; border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--fill);
+      opacity: 0.55;
+      transition: opacity 0.25s, transform 0.25s;
     }
-    .ch-btn::after { /* active glow ring */
-      content: ''; position: absolute; inset: -6px; border-radius: 50%;
-      box-shadow: 0 0 0 2px var(--glow), 0 0 22px var(--glow);
-      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    .ch-btn::after { /* thin ring on the active dot */
+      content: ''; position: absolute; left: 50%; top: 50%;
+      width: 18px; height: 18px; border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      border: 1px solid var(--glow);
+      opacity: 0; transition: opacity 0.25s, transform 0.25s;
     }
-    .ch-btn:hover { filter: brightness(1.15); }
+    .ch-btn:hover::before, .ch-btn:focus-visible::before { opacity: 0.9; }
     .ch-btn:focus-visible { outline: none; }
-    .ch-btn:focus-visible::after { opacity: 0.7; }
-    .ch-btn:active, .ch-key.is-active .ch-btn {
-      transform: rotate(-22deg) translateY(3px);
-      box-shadow:
-        inset 0 -3px 0 rgba(0,0,0,0.38),
-        inset 0 3px 7px rgba(255,255,255,0.32),
-        0 2px 0 rgba(0,0,0,0.65),
-        0 4px 8px rgba(0,0,0,0.7);
-    }
-    .ch-key.is-active .ch-btn::after { opacity: 1; }
+    .ch-key.is-active .ch-btn::before { opacity: 1; }
+    .ch-key.is-active .ch-btn::after  { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
 
-    /* CH00 — small flat "start" pill, set apart to the left */
-    .ch-key.is-start { margin-right: 10px; align-self: center; }
-    .ch-key.is-start .ch-btn {
-      width: 34px; height: 11px; border-radius: 8px;
-      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.25), 0 2px 0 rgba(0,0,0,0.6);
-    }
-    .ch-key.is-start .ch-btn::before { display: none; }
-    .ch-key.is-start .ch-btn::after { inset: -4px; border-radius: 10px; }
-    .ch-key.is-start:active .ch-btn, .ch-key.is-start.is-active .ch-btn { transform: rotate(-22deg) translateY(1px); }
+    /* Secret 6th dot — invisible until hovered/focused, then a faint gold glint */
+    .ch-key.is-secret .ch-btn::before { opacity: 0; transform: translate(-50%, -50%) scale(0.4); transition: opacity 0.6s, transform 0.6s; }
+    .ch-key.is-secret .ch-btn:hover::before,
+    .ch-key.is-secret .ch-btn:focus-visible::before { opacity: 0.35; transform: translate(-50%, -50%) scale(0.7); box-shadow: 0 0 8px #ffd36b; }
+    .ch-key.is-secret.is-active .ch-btn::before { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 10px #ffd36b; }
 
-    @media (max-width: 480px) {
-      .channel-pad { gap: 15px; bottom: 80px; }
-      .ch-btn { width: 44px; height: 32px; }
-      .ch-key { transform: translateY(calc(var(--lift, 0px) * 0.75)); }
+    /* CH00 static = hollow white circle */
+    .ch-key.is-start .ch-btn::before {
+      background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8);
     }
     @media (max-height: 640px) {
       .channel-view { transform: translateY(-48px); }
@@ -740,6 +1150,7 @@
   <section id="hero">
     <canvas id="hero-static" width="480" height="270" aria-hidden="true"></canvas>
     <canvas id="hero-fog"    width="160" height="90"  aria-hidden="true"></canvas>
+    <div class="hero-ambient" id="hero-ambient" aria-hidden="true"></div>
     <div class="scanlines"     aria-hidden="true"></div>
     <div class="scan-sweep"    aria-hidden="true"></div>
     <div class="hero-vignette" aria-hidden="true"></div>
@@ -763,8 +1174,8 @@
     <div class="hero-fade" aria-hidden="true"></div>
 
     <!-- Controller-style channel buttons (built from CONFIG.albums) -->
+    <div class="ch-hint" id="ch-hint" aria-hidden="true"></div>
     <nav class="channel-pad" id="channel-pad" aria-label="Album channels">
-      <span class="pad-readout" id="pad-readout" aria-hidden="true"></span>
     </nav>
 
     <div class="scroll-hint" id="scroll-hint" aria-hidden="true">
@@ -784,10 +1195,10 @@
     <!-- MUSIC -->
     <div class="block-wrap">
       <div class="block" data-section="music" data-expandable>
-        <span class="block-num" aria-hidden="true">01</span>
+        <span class="block-num" aria-hidden="true">05</span>
         <div class="block-header" role="button" aria-expanded="false" tabindex="0">
           <div class="ch-left" aria-hidden="true">
-            <span class="ch-num">CH 01</span>
+            <span class="ch-num">CH 05</span>
             <div class="ch-meta">
               <span class="ch-signal"><span></span><span></span><span></span></span>
               <span class="ch-dot"></span>
@@ -807,10 +1218,10 @@
     <!-- VIDEOS -->
     <div class="block-wrap">
       <div class="block" data-section="videos" data-expandable>
-        <span class="block-num" aria-hidden="true">02</span>
+        <span class="block-num" aria-hidden="true">06</span>
         <div class="block-header" role="button" aria-expanded="false" tabindex="0">
           <div class="ch-left" aria-hidden="true">
-            <span class="ch-num">CH 02</span>
+            <span class="ch-num">CH 06</span>
             <div class="ch-meta">
               <span class="ch-signal"><span></span><span></span><span></span></span>
               <span class="ch-dot"></span>
@@ -842,10 +1253,10 @@
     <div class="block-wrap">
       <a class="block" data-section="store"
          href="https://aarnxbrwn.bandcamp.com" target="_blank" rel="noopener">
-        <span class="block-num" aria-hidden="true">03</span>
+        <span class="block-num" aria-hidden="true">07</span>
         <div class="block-header">
           <div class="ch-left" aria-hidden="true">
-            <span class="ch-num">CH 03</span>
+            <span class="ch-num">CH 07</span>
             <div class="ch-meta">
               <span class="ch-signal"><span></span><span></span><span></span></span>
               <span class="ch-dot"></span>
@@ -867,10 +1278,10 @@
       <a class="block" data-section="email"
          href="https://aarnxbrwn.beehiiv.com/subscribe" target="_blank" rel="noopener"
          id="email-block">
-        <span class="block-num" aria-hidden="true">04</span>
+        <span class="block-num" aria-hidden="true">08</span>
         <div class="block-header">
           <div class="ch-left" aria-hidden="true">
-            <span class="ch-num">CH 04</span>
+            <span class="ch-num">CH 08</span>
             <div class="ch-meta">
               <span class="ch-signal"><span></span><span></span><span></span></span>
               <span class="ch-dot"></span>
@@ -890,10 +1301,10 @@
     <!-- PRESS -->
     <div class="block-wrap">
       <div class="block" data-section="press" data-expandable>
-        <span class="block-num" aria-hidden="true">05</span>
+        <span class="block-num" aria-hidden="true">09</span>
         <div class="block-header" role="button" aria-expanded="false" tabindex="0">
           <div class="ch-left" aria-hidden="true">
-            <span class="ch-num">CH 05</span>
+            <span class="ch-num">CH 09</span>
             <div class="ch-meta">
               <span class="ch-signal"><span></span><span></span><span></span></span>
               <span class="ch-dot"></span>
@@ -961,6 +1372,20 @@
       ],
       beehiiv: 'https://aarnxbrwn.beehiiv.com/subscribe',
 
+      /* Hidden channel — reached by swiping/arrowing past the last album.
+         soundcloud: the CH 777 playlist — edit it on SoundCloud and the site updates. */
+      secret: {
+        id: '777', num: 777, hidden: true,
+        title: 'Singles', year: 'Secret channel',
+        soundcloud: 'https://soundcloud.com/aarnxbrwn/sets/ch-777',
+        accent: '#ffd36b', accent2: '#3a2a00',
+        fog: ['#ffc94a', '#0d0900'],
+        fill: '#ffd36b',
+      },
+
+      /* Try-out features — set to false to remove */
+      features: { guide: true, crtOff: true },
+
       /* Album channels — chronological. CH 00 is the static/logo screen.
          accent = page-wide theme color, fog = [main, secondary] swirl colors,
          fill = the controller button's paint.
@@ -968,10 +1393,29 @@
       albums: [
         {
           id: 'ghost', title: 'Ghost', year: '2019',
-          cover: 'covers/ghost.jpg',
+          cover: 'covers/ghost-800.webp',
           accent: '#ff3b3b', accent2: '#7a0a12',
           fog: ['#ff2b2b', '#5a0610'],
           fill: '#e8202a',
+          lead: 'Ghost',
+          tracks: [
+            { n:  1, title: 'Intro', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/ae/9c/67/ae9c6752-5269-a322-e516-35d682198324/mzaf_3215963735715688422.plus.aac.p.m4a' },
+            { n:  2, title: 'Ghost', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/dd/8b/be/dd8bbe9d-827d-e1dc-9c9c-af1b472dc149/mzaf_8790760084390205554.plus.aac.p.m4a' },
+            { n:  3, title: 'Better Days', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/b7/bf/34/b7bf3415-f6cc-d1a2-0927-8cbbc850cffa/mzaf_12557980553616133328.plus.aac.p.m4a' },
+            { n:  4, title: 'Phony', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/7c/26/0a/7c260ab8-481c-975e-47e8-1b108925e1fa/mzaf_9642320119560125520.plus.aac.p.m4a' },
+            { n:  5, title: 'The Ghost Speaks', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/53/7f/bd/537fbd60-1aef-6ac8-5433-62cfc6f8e3e5/mzaf_15164112300192477918.plus.aac.p.m4a' },
+            { n:  6, title: 'Never Gonna Change, Pt. 3', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/b8/32/2e/b8322e5d-0d07-e6bb-15e7-de03b8cd4d30/mzaf_11111693016953956429.plus.aac.p.m4a' },
+            { n:  7, title: 'Windows', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/42/42/a1/4242a17b-2f42-079b-2698-f2f706996ef3/mzaf_8164192572040177943.plus.aac.p.m4a' },
+            { n:  8, title: 'Thinking of You', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/35/a6/9c/35a69c4b-25c7-666a-6cd9-e6920a02a145/mzaf_10911824460849744514.plus.aac.p.m4a' },
+            { n:  9, title: 'Collagen', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/80/d5/34/80d5341d-242c-a0e1-b6e1-c170ae31c368/mzaf_11380922908117732065.plus.aac.p.m4a' },
+            { n: 10, title: 'Rococo', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/24/8c/f1/248cf119-009d-297e-51e9-c023ea50ac1a/mzaf_1583221129741789624.plus.aac.p.m4a' },
+            { n: 11, title: 'Paralyzed', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/94/ff/e9/94ffe9e3-2161-a69d-ef18-f19c7ae36740/mzaf_3648865152330165417.plus.aac.p.m4a' },
+            { n: 12, title: 'Zombie', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/1e/a1/d1/1ea1d110-1477-1e24-bacd-9658a5ecee81/mzaf_4510061954314942771.plus.aac.p.m4a' },
+            { n: 13, title: 'Chains', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/90/1a/3d/901a3dcf-70c1-ac52-6f38-34ac4dcf2361/mzaf_54038996236942979.plus.aac.p.m4a' },
+            { n: 14, title: 'Outro', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/39/28/76/39287669-6a4a-7f13-cce2-755a599e7c44/mzaf_16924376864723163456.plus.aac.p.m4a' },
+            { n: 15, title: 'Looks Like Fun', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/9d/ee/8c/9dee8c68-3d45-0ac2-8fb9-baae0698d535/mzaf_17353035240963687517.plus.aac.p.m4a' },
+            { n: 16, title: 'Haunted (Version 2)', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/95/9f/b3/959fb39d-752c-b936-7f5a-ffe80fa5db1b/mzaf_16926352738436425259.plus.aac.p.m4a' },
+          ],
           links: {
             'Spotify':     'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1',
             'Apple Music': 'https://music.apple.com/us/album/ghost/1465035482',
@@ -980,10 +1424,24 @@
         },
         {
           id: 'save-me-im-drowning', title: "Save Me I'm Drowning", year: '2020',
-          cover: 'covers/save-me-im-drowning.jpg',
+          cover: 'covers/save-me-im-drowning-800.webp',
           accent: '#ff8de6', accent2: '#9d8cf0',
           fog: ['#ff7ce8', '#8f7cf0'],
           fill: '#f27fd9',
+          lead: 'Front Line',
+          tracks: [
+            { n:  1, title: 'Front Line', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/10/a3/f2/10a3f212-76d0-0e0a-9f6a-cf5a17a647a3/mzaf_16774512800392181574.plus.aac.p.m4a' },
+            { n:  2, title: 'Often', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/bf/47/7f/bf477f2f-e669-1ae5-71e9-63fc527a0340/mzaf_7945803890635535595.plus.aac.p.m4a' },
+            { n:  3, title: 'Ice Fishing', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/13/d7/b3/13d7b301-be0b-eded-5038-a881f4c5aa97/mzaf_11896176174178986233.plus.aac.p.m4a' },
+            { n:  4, title: 'Captain Black Planet (feat. Rupert)', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/44/08/63/440863b1-0ea4-dcb8-71ff-cabcd218a268/mzaf_14332427184649673380.plus.aac.p.m4a' },
+            { n:  5, title: 'Side Eye', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f9/f3/80/f9f380e2-e533-91fd-2a99-372350bcafb0/mzaf_2962669001807138354.plus.aac.p.m4a' },
+            { n:  6, title: 'Southside Sensei', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/b6/7f/b2/b67fb25d-f422-90d9-189b-104ffd3d20ad/mzaf_15111338231748850502.plus.aac.p.m4a' },
+            { n:  7, title: 'Ain\'t Cheap', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/6b/c2/93/6bc2932a-88ed-eb32-c56a-c95cf0761a54/mzaf_10250431049257098730.plus.aac.p.m4a' },
+            { n:  8, title: 'My Head', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/54/5c/a4/545ca41a-1902-b1f0-d6c3-6c55530dc891/mzaf_5629402609857824072.plus.aac.p.m4a' },
+            { n:  9, title: 'Love Me Right', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/ae/d1/fb/aed1fb7b-bf95-a98a-03d9-b5a192cb93e2/mzaf_8219231016257667154.plus.aac.p.m4a' },
+            { n: 10, title: 'Value', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/90/76/f6/9076f6af-975b-d073-9321-4fd3a23be5b9/mzaf_17032802998545201854.plus.aac.p.m4a' },
+            { n: 11, title: 'Gods Face', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/15/35/1e/15351ec7-4442-1fa0-2026-f8cb92bfd98c/mzaf_7233309874819080641.plus.aac.p.m4a' },
+          ],
           links: {
             'Spotify':     'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1',
             'Apple Music': 'https://music.apple.com/us/album/save-me-im-drowning/1537990295',
@@ -993,10 +1451,27 @@
         },
         {
           id: 'come-home', title: 'Come Home', year: '2023',
-          cover: 'covers/come-home.jpg',
+          cover: 'covers/come-home-800.webp',
           accent: '#ff2a33', accent2: '#2a0508',
           fog: ['#e3121c', '#0a0204'],
           fill: 'linear-gradient(135deg, #ff2a33 0%, #9a0b12 45%, #0b0b0b 100%)',
+          lead: 'Come Home Intro',
+          tracks: [
+            { n:  1, title: 'Come Home Intro', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/d3/7a/ac/d37aac42-0112-b004-448b-8f3a7d9a24e6/mzaf_12930610597895708171.plus.aac.p.m4a' },
+            { n:  2, title: 'Intent', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/b2/5a/25/b25a2569-4ec8-e2b1-1acc-b97c541258d9/mzaf_5339659456551584465.plus.aac.p.m4a' },
+            { n:  3, title: 'Brs', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/0a/9c/34/0a9c34c4-60cc-8c54-031e-42a0663b13ec/mzaf_1310678401023769088.plus.aac.p.m4a' },
+            { n:  4, title: 'Onomatopoeia', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/f3/0d/5d/f30d5d2d-a927-3d2c-9ee3-ba4c6cbc4f1e/mzaf_2516771843568403264.plus.aac.p.m4a' },
+            { n:  5, title: 'Help U (feat. Stefan Haerle & Ept)', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/32/16/e2/3216e20e-4fce-e185-ad9e-5dd008d3bc7b/mzaf_18271780913067896632.plus.aac.p.m4a' },
+            { n:  6, title: 'Skyfall (feat. Steevn Shires)', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/a6/11/4a/a6114a1c-b26a-712e-582e-fd89f08f0c26/mzaf_5302117761074433382.plus.aac.p.m4a' },
+            { n:  7, title: '4 U', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/95/ee/bb/95eebb0d-0449-cca5-7cb1-b9757de30a83/mzaf_9377960584462478103.plus.aac.p.m4a' },
+            { n:  8, title: 'Self Interlude (feat. Jon Keysley)', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/a9/7c/f0/a97cf052-c017-476f-dfdd-d02a325a0a0f/mzaf_1990831829345846088.plus.aac.p.m4a' },
+            { n:  9, title: 'Self Medicated', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/fa/73/44/fa7344a4-e0e9-b0d5-b3f1-a4c7a639664a/mzaf_8187398397180625773.plus.aac.p.m4a' },
+            { n: 10, title: 'Mid-Soul', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/2b/5f/44/2b5f44b4-c073-45e4-307f-65aa4e8d0ba8/mzaf_8126156042593386902.plus.aac.p.m4a' },
+            { n: 11, title: 'Respawn', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/a3/d5/a2/a3d5a2ed-c349-1841-7a76-065374022b4b/mzaf_2301942692722577273.plus.aac.p.m4a' },
+            { n: 12, title: 'Stupid', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/93/fd/03/93fd03f4-369d-870f-cb85-fb82bad27fc3/mzaf_1530759467657548208.plus.aac.p.m4a' },
+            { n: 13, title: 'Ones', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/df/99/1d/df991d24-3f8a-fbae-edb2-7fdd9c00b777/mzaf_7842863081753857422.plus.aac.p.m4a' },
+            { n: 14, title: 'Black Thought', preview: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/2b/d6/ee/2bd6ee13-10ba-5c16-af11-0f0c6f28a712/mzaf_4476098457542778049.plus.aac.p.m4a' },
+          ],
           links: {
             'Spotify':     'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1',
             'Apple Music': 'https://music.apple.com/us/album/come-home/1663345407',
@@ -1010,8 +1485,12 @@
           accent: '#6ff0b6', accent2: '#062018',
           fog: ['#5fe0a8', '#020806'],
           fill: 'linear-gradient(135deg, #7dffc4 0%, #2f9c6e 45%, #0b0b0b 100%)',
-          /* Before releaseDate: "Coming Soon". On/after: button links to url. */
+          /* Before releaseDate: premiere readout + signup. On/after: "Enter" links to url.
+             releaseDateExact: set to 'YYYY-MM-DD' (or 'YYYY-MM-DDTHH:MM') once locked
+             and the readout becomes a live countdown. */
           releaseDate: '2027-03-01',
+          releaseDateExact: null,
+          premiereLabel: 'March 2027',
           url: 'https://43vrallalongsite.vercel.app',
           links: {},
         },
@@ -1055,7 +1534,7 @@
 
       function draw(ts) {
         requestAnimationFrame(draw);
-        if (window.__staticPaused) return;   /* paused while an album channel is on */
+        if (window.__staticPaused || window.__heroHidden) return;   /* album on, or hero off screen */
         if (ts - last < 1000 / 24) return;
         last = ts;
 
@@ -1145,6 +1624,7 @@
       function arm() {
         clearTimeout(timer);
         timer = setTimeout(() => {
+          if (window.__mediaPlaying) { arm(); return; }   /* don't interrupt music */
           ns.classList.add('visible');
           setTimeout(() => ns.classList.remove('visible'), 5000);
         }, 10000);
@@ -1171,6 +1651,102 @@
         gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.07);
         src.buffer = buf; src.connect(gain); gain.connect(ac.destination);
         src.start(); src.stop(ac.currentTime + 0.07);
+      } catch (e) {}
+    }
+
+    /* ================================================================
+       TUNE DIAL — mechanical rotary-dial clicks for channel changes
+       One detent click per channel passed (2–6), each a tiny noise impulse
+       through a resonant band-pass (the "tick") plus a low body knock,
+       over a faint crackle bed. No tones.
+    ================================================================ */
+    let tuneAC = null, clickBuf = null;
+    function playTuneStatic(steps = 2, buzz = true) {
+      /* tactile detents on phones that support it (Android) */
+      if (buzz && navigator.vibrate && matchMedia('(pointer: coarse)').matches) {
+        try { const n = Math.max(2, Math.min(6, steps)), pat = [];
+              for (let i = 0; i < n; i++) pat.push(i === n - 1 ? 14 : 7, 46);
+              navigator.vibrate(pat); } catch (e) {}
+      }
+      try {
+        tuneAC = tuneAC || new (window.AudioContext || window.webkitAudioContext)();
+        const ac = tuneAC;
+        if (ac.state === 'suspended') ac.resume();
+        const sr = ac.sampleRate, t0 = ac.currentTime + 0.005;
+
+        if (!clickBuf) {                       /* 6ms decaying noise impulse */
+          clickBuf = ac.createBuffer(1, Math.ceil(sr * 0.006), sr);
+          const c = clickBuf.getChannelData(0);
+          for (let i = 0; i < c.length; i++) c[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / c.length, 3);
+        }
+        const out = ac.createGain(); out.gain.value = 0.9; out.connect(ac.destination);
+
+        function click(t, vol, pitch) {
+          /* tick — bright resonant snap */
+          const s1 = ac.createBufferSource(); s1.buffer = clickBuf;
+          const bp = ac.createBiquadFilter(); bp.type = 'bandpass';
+          bp.frequency.value = pitch; bp.Q.value = 9;
+          const g1 = ac.createGain(); g1.gain.value = vol;
+          s1.connect(bp); bp.connect(g1); g1.connect(out);
+          /* knock — low body of the knob/housing */
+          const s2 = ac.createBufferSource(); s2.buffer = clickBuf;
+          const lp = ac.createBiquadFilter(); lp.type = 'bandpass';
+          lp.frequency.value = 380 + Math.random() * 80; lp.Q.value = 4;
+          const g2 = ac.createGain(); g2.gain.value = vol * 1.6;
+          s2.connect(lp); lp.connect(g2); g2.connect(out);
+          s1.start(t); s2.start(t);
+        }
+
+        const n = Math.max(2, Math.min(6, steps));
+        let t = t0;
+        for (let i = 0; i < n; i++) {
+          const last = i === n - 1;
+          click(t, last ? 0.9 : 0.55 + Math.random() * 0.15,
+                (last ? 2100 : 2600) + Math.random() * 500);
+          t += 0.045 + Math.random() * 0.018;   /* uneven detent spacing */
+        }
+
+        /* faint crackle bed under the clicks (the dial sound as before) */
+        const dur = t - t0 + 0.08;
+        const nb = ac.createBuffer(1, Math.ceil(sr * dur), sr);
+        const d = nb.getChannelData(0);
+        const hold = Math.round(sr / 4000); let v = 0;
+        for (let i = 0; i < d.length; i++) { if (i % hold === 0) v = Math.random() < 0.3 ? Math.random() * 2 - 1 : v * 0.3; d[i] = v; }
+        const bed = ac.createBufferSource(); bed.buffer = nb;
+        const bbp = ac.createBiquadFilter(); bbp.type = 'bandpass'; bbp.frequency.value = 1700; bbp.Q.value = 0.8;
+        const bg = ac.createGain();
+        bg.gain.setValueAtTime(0.0001, t0);
+        bg.gain.linearRampToValueAtTime(0.025, t0 + 0.02);
+        bg.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        bed.connect(bbp); bbp.connect(bg); bg.connect(out);
+
+        /* radio static layer — comes in just after the first click and
+           swells as the dial settles, then tails off after the last detent */
+        const sStart = t0 + 0.03;
+        const sDur = (t - sStart) + 0.3;
+        const sb = ac.createBuffer(1, Math.ceil(sr * sDur), sr);
+        const sd = sb.getChannelData(0);
+        const sh = Math.max(1, Math.round(sr / 5500));
+        let sv = 0, gate = 1;
+        for (let i = 0; i < sd.length; i++) {
+          if (i % sh === 0) sv = Math.random() * 2 - 1;
+          if (i % 220 === 0) gate = Math.random() < 0.8 ? 1 : 0.15;
+          sd[i] = sv * gate;
+        }
+        const st = ac.createBufferSource(); st.buffer = sb;
+        const sbp = ac.createBiquadFilter(); sbp.type = 'bandpass';
+        sbp.frequency.setValueAtTime(1400, sStart);
+        sbp.frequency.linearRampToValueAtTime(2200, sStart + sDur);
+        sbp.Q.value = 0.7;
+        const slp = ac.createBiquadFilter(); slp.type = 'lowpass'; slp.frequency.value = 3800;
+        const sg = ac.createGain();
+        sg.gain.setValueAtTime(0.0001, sStart);
+        sg.gain.linearRampToValueAtTime(0.05, sStart + 0.05);
+        sg.gain.linearRampToValueAtTime(0.09, t);          /* peak as the dial lands */
+        sg.gain.exponentialRampToValueAtTime(0.0001, sStart + sDur);
+        st.connect(sbp); sbp.connect(slp); slp.connect(sg); sg.connect(out);
+        st.start(sStart); st.stop(sStart + sDur);
+        bed.start(t0); bed.stop(t0 + dur);
       } catch (e) {}
     }
 
@@ -1238,7 +1814,7 @@
     /* Hover scan */
     document.querySelectorAll('.block-wrap').forEach((wrap, idx) => {
       const numEl = wrap.querySelector('.ch-num');
-      const final = idx + 1;
+      const final = idx + 5;   /* CH 00–04 are the hero album channels */
       let scanTimer = null;
       wrap.addEventListener('mouseenter', () => {
         clearInterval(scanTimer);
@@ -1264,7 +1840,6 @@
       const logoView = document.getElementById('hero-content');
       const view     = document.getElementById('channel-view');
       const pad      = document.getElementById('channel-pad');
-      const readout  = document.getElementById('pad-readout');
       const osd      = document.getElementById('ch-osd');
       const osdNum   = document.getElementById('ch-osd-num');
       const osdName  = document.getElementById('ch-osd-name');
@@ -1273,8 +1848,9 @@
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       /* Channel list: index 0 = static, 1..n = albums */
-      const CHANNELS = [{ id: 'static', title: 'Static', static: true }].concat(CONFIG.albums);
-      const chLabel = i => 'CH ' + String(i).padStart(2, '0');
+      const CHANNELS = [{ id: 'static', title: 'Static', static: true }].concat(CONFIG.albums, CONFIG.secret ? [CONFIG.secret] : []);
+      const chNum = i => CHANNELS[i].num || i;
+      const chLabel = i => 'CH ' + String(chNum(i)).padStart(2, '0');
       let current = 0, osdTimer = null, swapTimer = null;
 
       /* ---------- Fog renderer ---------- */
@@ -1311,7 +1887,7 @@
           fctx.fillRect(0, 0, FW, FH);
         });
       }
-      function fogLoop(t) { drawFog(t); fogRaf = requestAnimationFrame(fogLoop); }
+      function fogLoop(t) { if (!window.__heroHidden) drawFog(t); fogRaf = requestAnimationFrame(fogLoop); }
       function startFog(colors) {
         fogColors = colors;
         if (reduceMotion) { cancelAnimationFrame(fogRaf); drawFog(performance.now()); return; }
@@ -1322,35 +1898,226 @@
       /* ---------- Build controller pad ---------- */
       const keys = CHANNELS.map((ch, i) => {
         const key = document.createElement('div');
-        key.className = 'ch-key' + (ch.static ? ' is-start' : '');
-        if (!ch.static) key.style.setProperty('--lift', (-(i - 1) * 13) + 'px');
+        key.className = 'ch-key' + (ch.static ? ' is-start' : '') + (ch.hidden ? ' is-secret' : '');
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'ch-btn';
-        btn.style.setProperty('--fill', ch.static ? '#2b2b2b' : ch.fill);
+        if (!ch.hidden) btn.title = ch.static ? 'Static' : `${ch.title} (${ch.year})`;
+        btn.style.setProperty('--fill', ch.static ? 'transparent' : ch.fill);
         btn.style.setProperty('--glow', ch.static ? 'rgba(255,255,255,0.7)' : ch.accent);
         btn.setAttribute('aria-label', ch.static
           ? 'Channel 0: Static'
-          : `Channel ${i}: ${ch.title} (${ch.year})`);
+          : `Channel ${chNum(i)}: ${ch.title}${ch.hidden ? '' : ` (${ch.year})`}`);
         btn.setAttribute('aria-pressed', 'false');
-        const num = document.createElement('span');
-        num.className = 'ch-key-num';
-        num.setAttribute('aria-hidden', 'true');
-        num.textContent = ch.static ? 'STATIC' : String(i).padStart(2, '0');
-        key.append(btn, num);
-        const label = `${chLabel(i)} · ${ch.static ? 'Static' : ch.title}`;
-        const show = () => { readout.textContent = label; };
-        const hide = () => { readout.textContent = ''; };
-        btn.addEventListener('mouseenter', show);
-        btn.addEventListener('focus', show);
-        btn.addEventListener('mouseleave', hide);
-        btn.addEventListener('blur', hide);
-        btn.addEventListener('click', () => tuneTo(i));
+        key.append(btn);
+        btn.addEventListener('click', () => tuneTo(i, { steps: Math.abs(i - current) + 1 }));
         pad.appendChild(key);
         return key;
       });
 
+      /* ---------- Preview player (Apple 30s previews) ----------
+         <audio> -> lowpass ("TV speaker" that opens up) -> analyser -> out.
+         The analyser's low end drives --pulse on #hero for the visuals. */
+      const Player = (function () {
+        const audio = new Audio();
+        audio.crossOrigin = 'anonymous';
+        audio.preload = 'none';
+        let ac = null, lp = null, an = null, bins = null, raf = null;
+        let album = null, idx = -1, ui = null, level = 0;
+
+        function graph() {
+          if (ac) return;
+          ac = tuneAC = tuneAC || new (window.AudioContext || window.webkitAudioContext)();
+          const src = ac.createMediaElementSource(audio);
+          lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.9;
+          an = ac.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = 0.6;
+          bins = new Uint8Array(an.frequencyBinCount);
+          src.connect(lp); lp.connect(an); an.connect(ac.destination);
+        }
+        function setText() {
+          if (!ui) { window.dispatchEvent(new Event('player:change')); return; }
+          const t = album && album.tracks && album.tracks[idx];
+          const playing = !!(t && !audio.paused);
+          ui.np.classList.toggle('is-playing', playing);
+          ui.art.classList.toggle('is-playing', playing);
+          ui.np.querySelector('.cv-np-text').textContent = playing
+            ? `▶ ${String(t.n).padStart(2, '0')} · ${t.title}`
+            : '▶ Tap cover to preview';
+          window.dispatchEvent(new Event('player:change'));
+        }
+        function loop() {
+          if (an && !audio.paused) {
+            an.getByteFrequencyData(bins);
+            let lo = 0; for (let i = 1; i < 6; i++) lo += bins[i];
+            let mid = 0; for (let i = 6; i < 24; i++) mid += bins[i];
+            const target = Math.min(1, Math.max(0, (lo / 5 / 255 - 0.35) * 1.9) * 0.75 + (mid / 18 / 255) * 0.35);
+            level += (target - level) * (target > level ? 0.55 : 0.12);   /* fast attack, slow release */
+            if (ui && audio.duration) ui.np.querySelector('.cv-np-fill').style.width = (audio.currentTime / audio.duration * 100) + '%';
+          } else {
+            level *= 0.85;
+          }
+          hero.style.setProperty('--pulse', reduceMotion ? 0 : level.toFixed(3));
+          raf = (level > 0.002 || !audio.paused) ? requestAnimationFrame(loop) : null;
+        }
+        audio.addEventListener('ended', () => {
+          /* roll on to the next track in the album */
+          if (album && idx < album.tracks.length - 1) play(album, idx + 1, true); else stop();
+        });
+        audio.addEventListener('pause',   () => { window.__mediaPlaying = false; setText(); });
+        audio.addEventListener('playing', () => { window.__mediaPlaying = true;  setText(); });
+
+        function play(a, i, continuing) {
+          graph();
+          if (ac.state === 'suspended') ac.resume();
+          album = a; idx = Math.max(0, i);
+          audio.src = a.tracks[idx].preview;
+          const t0 = ac.currentTime;
+          lp.frequency.cancelScheduledValues(t0);
+          if (continuing) lp.frequency.setValueAtTime(18000, t0);
+          else {
+            lp.frequency.setValueAtTime(850, t0);
+            lp.frequency.setValueAtTime(850, t0 + 0.35);
+            lp.frequency.exponentialRampToValueAtTime(18000, t0 + 1.6);
+          }
+          audio.play().catch(() => {});
+          setText();
+          if (!raf) raf = requestAnimationFrame(loop);
+        }
+        function stop() {
+          audio.pause();
+          if (ui) ui.np.querySelector('.cv-np-fill').style.width = '0%';
+          setText();
+          if (!raf) raf = requestAnimationFrame(loop);
+        }
+        return {
+          play, stop,
+          isPlaying: a => album === a && !audio.paused,
+          nowIndex: a => (album === a && !audio.paused) ? idx : -1,
+          bindUI(a, art, np) { ui = { art, np }; if (album !== a) { album = a; idx = -1; } setText(); },
+          detach() { stop(); ui = null; album = null; },
+        };
+      })();
+
+      /* ---------- Teletext track guide ---------- */
+      const Guide = (function () {
+        const box = document.createElement('div');
+        box.className = 'tv-guide';
+        box.setAttribute('role', 'dialog');
+        box.setAttribute('aria-label', 'Track guide');
+        hero.appendChild(box);
+        let album = null;
+        function render() {
+          if (!album) return;
+          const now = Player.nowIndex(album);
+          const chNum = String(CHANNELS.indexOf(album)).padStart(2, '0');
+          box.innerHTML = `
+            <div class="tg-head"><span>P1${chNum} AARNxBRWN</span><span>GUIDE</span></div>
+            <div class="tg-sub"><span>${album.title}</span><span>${album.year} · ${album.tracks.length} TRK</span></div>
+            <ol class="tg-list"></ol>
+            <div class="tg-foot"><span>Select track<span class="tg-blink">_</span></span><button type="button" class="tg-exit">✕ Exit</button></div>`;
+          const list = box.querySelector('.tg-list');
+          album.tracks.forEach((t, i) => {
+            const li = document.createElement('li');
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'tg-row' + (i === now ? ' is-now' : '');
+            b.innerHTML = `<span class="tg-n">${String(t.n).padStart(2, '0')}</span><span class="tg-t"></span><span class="tg-p">${i === now ? '◼' : '▶'}</span>`;
+            b.querySelector('.tg-t').textContent = t.title;
+            b.addEventListener('click', () => {
+              if (Player.nowIndex(album) === i) Player.stop(); else Player.play(album, i);
+            });
+            li.appendChild(b); list.appendChild(li);
+          });
+          box.querySelector('.tg-exit').addEventListener('click', close);
+        }
+        function open(a) {
+          album = a; render();
+          box.classList.add('is-open');
+          playTuneStatic(1);
+          const first = box.querySelector('.tg-row'); if (first) first.focus({ preventScroll: true });
+        }
+        function close() {
+          if (!box.classList.contains('is-open')) return;
+          box.classList.remove('is-open');
+          const gb = view.querySelector('.cv-guide-btn'); if (gb) gb.focus({ preventScroll: true });
+        }
+        window.addEventListener('player:change', () => {
+          if (!box.classList.contains('is-open')) return;
+          const now = album ? Player.nowIndex(album) : -1;
+          box.querySelectorAll('.tg-row').forEach((r, i) => {
+            r.classList.toggle('is-now', i === now);
+            r.querySelector('.tg-p').textContent = i === now ? '◼' : '▶';
+          });
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+        return { open, close, isOpen: () => box.classList.contains('is-open') };
+      })();
+
       /* ---------- Channel view content ---------- */
+      /* Share: native share sheet on phones, copy-link fallback on desktop.
+         Links go to the /<id> share pages so previews show the album card. */
+      function buildShare(album) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'cv-guide-btn cv-share-btn';
+        b.textContent = '[ Share ]';
+        b.setAttribute('aria-label', `Share ${album.title}`);
+        b.addEventListener('click', async () => {
+          const base = 'https://aarnxbrwn.stream';   /* always share the real domain */
+          const url = `${base}/${album.id}`;
+          const text = album.hidden ? 'Found the secret channel 👀' : `${album.title} by AARNxBRWN — tune in`;
+          try {
+            if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+              await navigator.share({ title: `${album.title} · AARNxBRWN`, text, url });
+              return;
+            }
+            await navigator.clipboard.writeText(url);
+            b.textContent = '[ Link copied ]';
+          } catch (e) {
+            if (e && e.name === 'AbortError') return;      /* user closed the share sheet */
+            window.prompt('Copy this link:', url);
+          }
+          setTimeout(() => { b.textContent = '[ Share ]'; }, 1800);
+        });
+        return b;
+      }
+
+      /* 43VA hype: premiere readout (month, or live countdown once exact) */
+      function buildPremiere(album) {
+        const box = document.createElement('div');
+        box.className = 'cv-premiere';
+        box.innerHTML = '<span class="cv-prem-label">Premieres</span><span class="cv-prem-time"></span>';
+        const time = box.querySelector('.cv-prem-time');
+        if (!album.releaseDateExact) { time.textContent = album.premiereLabel || album.year; return box; }
+        const target = new Date(album.releaseDateExact.length > 10 ? album.releaseDateExact : album.releaseDateExact + 'T00:00:00');
+        const pad = n => String(n).padStart(2, '0');
+        (function tick() {
+          if (!box.isConnected && box.dataset.started) return;
+          box.dataset.started = '1';
+          let ms = Math.max(0, target - new Date());
+          const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+          const h = Math.floor(ms / 36e5);  ms -= h * 36e5;
+          const m = Math.floor(ms / 6e4);   ms -= m * 6e4;
+          time.textContent = `${pad(d)}D ${pad(h)}:${pad(m)}:${pad(Math.floor(ms / 1000))}`;
+          setTimeout(tick, 1000);
+        })();
+        return box;
+      }
+      /* Email capture → opens the Beehiiv subscribe page with the email filled in */
+      function buildSignup() {
+        const f = document.createElement('form');
+        f.className = 'cv-signal';
+        f.innerHTML = `
+          <input type="email" required placeholder="your@email" aria-label="Email address" autocomplete="email">
+          <button type="submit">Get the signal</button>`;
+        f.addEventListener('submit', e => {
+          e.preventDefault();
+          const em = f.querySelector('input').value.trim();
+          window.open(CONFIG.beehiiv + '?email=' + encodeURIComponent(em), '_blank', 'noopener');
+          f.innerHTML = '<span class="cv-signal-ok">Signal locked ✓ — confirm in the new tab</span>';
+        });
+        return f;
+      }
+
       function isReleased(album) {
         return !album.releaseDate || new Date() >= new Date(album.releaseDate + 'T00:00:00');
       }
@@ -1364,6 +2131,8 @@
         title.className = 'cv-title'; title.textContent = album.title;
         const year = document.createElement('div');
         year.className = 'cv-year'; year.textContent = album.year;
+        if (album.url && !isReleased(album)) year.style.display = 'none';
+        if (album.soundcloud) { title.style.display = 'none'; year.style.display = 'none'; }
         const links = document.createElement('div');
         links.className = 'cv-links';
 
@@ -1374,10 +2143,9 @@
             a.textContent = 'Enter →';
             links.appendChild(a);
           } else {
-            const s = document.createElement('span');
-            s.className = 'cv-link is-soon';
-            s.textContent = 'Coming Soon · ' + album.year;
-            links.appendChild(s);
+            links.classList.add('is-hype');
+            links.appendChild(buildPremiere(album));
+            links.appendChild(buildSignup());
           }
         }
         Object.entries(album.links || {}).forEach(([name, url]) => {
@@ -1386,7 +2154,360 @@
           a.innerHTML = (DSP_ICONS[name] || '') + `<span>${name}</span>`;
           links.appendChild(a);
         });
-        view.append(img, title, year, links);
+        const art = album.soundcloud ? buildSoundCloud(album) : buildArt(album, img);
+        const parts = [art, title, year];
+        if (album.tracks && album.tracks.length) {
+          art.classList.add('is-playable');
+          art.setAttribute('role', 'button');
+          art.setAttribute('tabindex', '0');
+          art.setAttribute('aria-label', `Play a preview from ${album.title}`);
+          const np = document.createElement('div');
+          np.className = 'cv-np';
+          np.innerHTML = '<span class="cv-np-text"></span><div class="cv-np-bar"><div class="cv-np-fill"></div></div>';
+          parts.push(np);
+          const toggle = () => Player.isPlaying(album) ? Player.stop() : Player.play(album, album.tracks.findIndex(t => t.title === album.lead));
+          art.addEventListener('click', toggle);
+          art.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+          Player.bindUI(album, art, np);
+        }
+        const actions = document.createElement('div');
+        actions.className = 'cv-actions';
+        if (CONFIG.features.guide && album.tracks && album.tracks.length) {
+          const gb = document.createElement('button');
+          gb.type = 'button'; gb.className = 'cv-guide-btn';
+          gb.textContent = '[ Guide ]';
+          gb.setAttribute('aria-label', `Open the ${album.title} track guide`);
+          gb.addEventListener('click', () => Guide.open(album));
+          actions.appendChild(gb);
+        }
+        actions.appendChild(buildShare(album));
+        parts.push(actions);
+        parts.push(links);
+        view.append(...parts);
+      }
+
+      /* ---------- Per-album motifs ---------- */
+      /* Smooth water warp for SMID: two passes of thin strips shifted by
+         layered slow sine waves (rows sideways, then columns up/down). */
+      function startWater(canvas, src) {
+        const ctx = canvas.getContext('2d');
+        const off = document.createElement('canvas');
+        const octx = off.getContext('2d');
+        const im = new Image();
+        im.src = src;
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        function frame(t) {
+          if (!canvas.isConnected) return;               /* channel changed */
+          if (window.__heroHidden) { requestAnimationFrame(frame); return; }
+          const W = Math.round(canvas.clientWidth * dpr);
+          if (!W) { requestAnimationFrame(frame); return; }
+          const H = W, ov = Math.round(W * 0.045), step = 2;
+          if (canvas.width !== W) { canvas.width = W; canvas.height = H; }
+          if (off.width !== W || off.height !== H + ov * 2) { off.width = W; off.height = H + ov * 2; }
+          const sc = im.naturalWidth / (W + ov * 2);
+          const A = W * 0.011;
+          const ts = t * 0.001;
+          /* pass 1 — rows drift sideways */
+          for (let y = 0; y < off.height; y += step) {
+            const dx = A * Math.sin(y / W * 9 + ts * 0.9)
+                     + A * 0.45 * Math.sin(y / W * 23 - ts * 1.4);
+            octx.drawImage(im, (ov - dx) * sc, y * sc, W * sc, step * sc, 0, y, W, step);
+          }
+          /* pass 2 — columns bob up/down */
+          for (let x = 0; x < W; x += step) {
+            const dy = A * 0.8 * Math.sin(x / W * 7 - ts * 0.7)
+                     + A * 0.35 * Math.sin(x / W * 19 + ts * 1.1);
+            ctx.drawImage(off, x, ov - dy, step, H, x, 0, step, H);
+          }
+          if (!reduceMotion) requestAnimationFrame(frame);
+        }
+        im.onload = () => requestAnimationFrame(frame);
+      }
+
+      /* ---------- Ambient background per album ---------- */
+      const ambient = document.getElementById('hero-ambient');
+      const rnd = (a, b) => a + Math.random() * (b - a);
+      function el(cls, vars) {
+        const e = document.createElement('span');
+        e.className = cls;
+        for (const k in vars) e.style.setProperty('--' + k, vars[k]);
+        return e;
+      }
+      /* Tileable caustic texture: edges of a wrapped Voronoi diagram,
+         rendered once to a 430px canvas and reused as a data URL */
+      let causticURL = null;
+      function causticTexture() {
+        if (causticURL) return causticURL;
+        const N = 430, P = 15;   /* 430 = largest tile size, so no upscaling */
+        const pts = Array.from({ length: P }, () => [Math.random() * N, Math.random() * N]);
+        const c = document.createElement('canvas'); c.width = c.height = N;
+        const cx = c.getContext('2d');
+        const img = cx.createImageData(N, N), d = img.data;
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          let f1 = 1e9, f2 = 1e9;
+          for (const [px, py] of pts) {
+            let dx = Math.abs(x - px); if (dx > N / 2) dx = N - dx;   /* wrap → tileable */
+            let dy = Math.abs(y - py); if (dy > N / 2) dy = N - dy;
+            const dd = Math.sqrt(dx * dx + dy * dy);
+            if (dd < f1) { f2 = f1; f1 = dd; } else if (dd < f2) f2 = dd;
+          }
+          const e = f2 - f1;                         /* 0 on cell edges */
+          const u = Math.max(0, 1 - e / 8);
+          const v = u * u * (3 - 2 * u);             /* smoothstep: soft-edged line */
+          const glow = Math.pow(Math.max(0, 1 - e / 26), 2) * 0.3;
+          const a = Math.min(1, v * 0.9 + glow);
+          const i = (y * N + x) * 4;
+          d[i] = 255; d[i + 1] = 205 + v * 50; d[i + 2] = 248; d[i + 3] = a * 255;
+        }
+        cx.putImageData(img, 0, 0);
+        return (causticURL = c.toDataURL('image/png'));
+      }
+
+      function buildAmbient(album) {
+        ambient.classList.remove('is-on');
+        ambient.innerHTML = '';
+        if (!album) return;
+        const add = e => ambient.appendChild(e);
+
+        if (album.id === 'ghost') {
+          const l = el('amb-neon v', { d: '9s',  delay: '-2s' }); l.style.left  = '5%';
+          const r = el('amb-neon v', { d: '11s', delay: '-6s' }); r.style.right = '5%';
+          const h  = el('amb-neon h',    { d: '13s', delay: '-4s' });
+          const h2 = el('amb-neon h h2', { d: '10s', delay: '-8s' });
+          const dl = el('amb-neon d l',  { d: '12s', delay: '-1s' });
+          const dr = el('amb-neon d r',  { d: '8s',  delay: '-5s' });
+          [l, r, h, h2, dl, dr].forEach(add);
+        }
+        if (album.id === 'save-me-im-drowning') {
+          for (let k = 0; k < 5; k++) add(el('amb-shaft', {
+            x: (8 + k * 19 + rnd(-4, 4)).toFixed(1) + '%', w: rnd(7, 14).toFixed(1) + '%',
+            d: rnd(9, 14).toFixed(1) + 's', delay: (-rnd(0, 10)).toFixed(1) + 's' }));
+          const tex = `url(${causticTexture()})`;
+          add(el('amb-caustic a', { tex }));
+          add(el('amb-caustic b', { tex }));
+        }
+        if (album.id === 'come-home') {
+          add(el('amb-horizon', {}));
+          const wrap = document.createElement('div');
+          wrap.className = 'amb-embers';
+          for (let k = 0; k < 26; k++) wrap.appendChild(el('cv-ember', {
+            x: rnd(0, 100).toFixed(1) + '%', s: rnd(2, 4.5).toFixed(1) + 'px',
+            d: rnd(9, 16).toFixed(1) + 's', delay: (-rnd(0, 16)).toFixed(1) + 's',
+            sway: rnd(-50, 50).toFixed(0) + 'px', rise: '105vh' }));
+          add(wrap);
+        }
+        if (album.id === '777') {
+          for (let k = 0; k < 5; k++) {
+            const reel = el('amb-reel', {
+              x: (4 + k * 20 + rnd(-3, 3)).toFixed(1) + '%',
+              d: rnd(26, 44).toFixed(1) + 's', delay: (-rnd(0, 40)).toFixed(1) + 's',
+              o: rnd(0.07, 0.16).toFixed(2) });
+            reel.textContent = '7 '.repeat(24);
+            add(reel);
+          }
+        }
+        if (album.id === '43va') {
+          for (let k = 0; k < 30; k++) add(el('amb-star', {
+            x: rnd(2, 98).toFixed(1) + '%', y: rnd(3, 92).toFixed(1) + '%',
+            s: rnd(8, 17).toFixed(0) + 'px',
+            d: rnd(3.5, 7).toFixed(1) + 's', delay: (-rnd(0, 7)).toFixed(1) + 's' }));
+        }
+        void ambient.offsetWidth;
+        ambient.classList.add('is-on');
+      }
+
+      /* On-theme SoundCloud player. SoundCloud's widget iframe stays hidden;
+         our controls drive it through the official Widget API (w.soundcloud.com/player/api.js).
+         If a phone blocks remote-start, the real SC player is revealed as a fallback. */
+      let scApi = null;
+      function loadScApi() {
+        if (window.SC && window.SC.Widget) return Promise.resolve();
+        if (scApi) return scApi;
+        scApi = new Promise((res, rej) => {
+          const sc = document.createElement('script');
+          sc.src = 'https://w.soundcloud.com/player/api.js';
+          sc.onload = res; sc.onerror = rej;
+          document.head.appendChild(sc);
+        });
+        return scApi;
+      }
+      const fmt = ms => { const t = Math.max(0, Math.round((ms || 0) / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+
+      function buildSoundCloud(album) {
+        const box = document.createElement('div');
+        box.className = 'cv-art cv-sc';
+        box.dataset.motif = album.id;
+        box.innerHTML = `
+          <div class="sc-head"><span>CH 777 ▸ Singles</span><span class="sc-state">■ Stop</span></div>
+          <div class="sc-now">
+            <img class="sc-art" src="covers/777-800.webp" alt="" draggable="false">
+            <div class="sc-meta">
+              <span class="sc-title">Tuning…</span>
+              <span class="sc-artist">AARNxBRWN</span>
+              <span class="sc-time">0:00 / 0:00</span>
+            </div>
+          </div>
+          <div class="sc-bar" role="slider" aria-label="Seek" tabindex="0"><div class="sc-fill"></div></div>
+          <div class="sc-ctrls">
+            <button type="button" class="sc-btn sc-prev" aria-label="Previous track">◀◀</button>
+            <button type="button" class="sc-btn sc-play" aria-label="Play">▶</button>
+            <button type="button" class="sc-btn sc-next" aria-label="Next track">▶▶</button>
+          </div>
+          <ol class="sc-list" aria-label="Singles"></ol>
+          <div class="sc-foot"><span class="sc-status"></span><a href="${album.soundcloud}" target="_blank" rel="noopener">SoundCloud ↗</a></div>`;
+        const f = document.createElement('iframe');
+        f.className = 'sc-hidden';
+        f.title = 'SoundCloud player';
+        f.allow = 'autoplay; encrypted-media';
+        f.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(album.soundcloud) +
+          '&color=' + encodeURIComponent(album.accent) +
+          '&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false';
+        box.appendChild(f);
+
+        const $ = q => box.querySelector(q);
+        const playBtn = $('.sc-play'), list = $('.sc-list'), fill = $('.sc-fill');
+        const status = t => { $('.sc-status').textContent = t || ''; };
+        let w = null, sounds = [], cur = 0, dur = 0, playing = false, fallbackTimer = null;
+
+        function setPlaying(p) {
+          playing = p;
+          window.__mediaPlaying = p;
+          playBtn.textContent = p ? '❚❚' : '▶';
+          playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+          $('.sc-state').textContent = p ? '● On air' : '■ Stop';
+        }
+        function showSound(snd) {
+          if (!snd) return;
+          $('.sc-title').textContent = snd.title || 'Untitled';
+          $('.sc-artist').textContent = (snd.user && snd.user.username) || 'AARNxBRWN';
+          const art = snd.artwork_url || (snd.user && snd.user.avatar_url);
+          $('.sc-art').src = art ? art.replace('-large', '-t300x300') : 'covers/777-800.webp';
+          dur = snd.duration || dur;
+        }
+        function renderList() {
+          list.innerHTML = '';
+          sounds.forEach((snd, i) => {
+            const li = document.createElement('li');
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'sc-row' + (i === cur ? ' is-now' : '');
+            b.innerHTML = `<span class="n">${String(i + 1).padStart(2, '0')}</span><span class="t"></span><span class="d">${snd.duration ? fmt(snd.duration) : ''}</span>`;
+            b.querySelector('.t').textContent = snd.title || 'Loading…';
+            b.addEventListener('click', () => { if (!w) return; playTuneStatic(2); w.skip(i); armFallback(); });
+            li.appendChild(b); list.appendChild(li);
+          });
+        }
+        function markNow() {
+          list.querySelectorAll('.sc-row').forEach((r, i) => r.classList.toggle('is-now', i === cur));
+          const r = list.children[cur]; if (r) r.scrollIntoView({ block: 'nearest' });
+        }
+        function refreshSounds(tries = 0) {
+          /* SC returns long playlists in pieces — re-ask until every title is in */
+          w.getSounds(arr => {
+            sounds = arr || [];
+            renderList();
+            if (sounds.some(x => !x.title) && tries < 6) setTimeout(() => refreshSounds(tries + 1), 1200);
+          });
+        }
+        function syncCurrent() {
+          w.getCurrentSoundIndex(i => { cur = i || 0; markNow(); });
+          w.getCurrentSound(showSound);
+          w.getDuration(d => { dur = d; });
+        }
+        function armFallback() {
+          /* Some phones won't let a page start SC remotely; reveal the real player */
+          clearTimeout(fallbackTimer);
+          fallbackTimer = setTimeout(() => {
+            if (playing || !box.isConnected) return;
+            f.className = 'sc-fallback';
+            status('Tap play in the player above');
+            box.insertBefore(f, $('.sc-list'));
+          }, 2500);
+        }
+
+        playBtn.addEventListener('click', () => { if (!w) return; w.toggle(); if (!playing) armFallback(); });
+        $('.sc-next').addEventListener('click', () => { if (!w) return; playTuneStatic(2); w.next(); });
+        $('.sc-prev').addEventListener('click', () => { if (!w) return; playTuneStatic(2); w.prev(); });
+        const seek = e => {
+          if (!w || !dur) return;
+          const r = $('.sc-bar').getBoundingClientRect();
+          w.seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur);
+        };
+        $('.sc-bar').addEventListener('click', seek);
+        $('.sc-bar').addEventListener('keydown', e => {
+          if (!w) return;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault(); e.stopPropagation();
+            w.getPosition(p => w.seekTo(Math.max(0, p + (e.key === 'ArrowRight' ? 5000 : -5000))));
+          }
+        });
+        /* don't let taps on the player register as channel swipes */
+        box.addEventListener('pointerup', e => e.stopPropagation());
+
+        status('Tuning in…');
+        loadScApi().then(() => {
+          if (!box.isConnected) return;
+          w = SC.Widget(f);
+          const E = SC.Widget.Events;
+          w.bind(E.READY, () => { status(''); refreshSounds(); syncCurrent(); });
+          w.bind(E.PLAY,  () => { setPlaying(true); clearTimeout(fallbackTimer); status(''); syncCurrent(); });
+          w.bind(E.PAUSE, () => setPlaying(false));
+          w.bind(E.FINISH, () => setPlaying(false));
+          w.bind(E.PLAY_PROGRESS, p => {
+            fill.style.width = (p.relativePosition * 100) + '%';
+            $('.sc-time').textContent = `${fmt(p.currentPosition)} / ${fmt(dur)}`;
+          });
+        }).catch(() => {
+          status('');
+          f.className = 'sc-fallback';
+          box.insertBefore(f, $('.sc-list'));
+        });
+        return box;
+      }
+
+      function buildArt(album, img) {
+        const art = document.createElement('div');
+        art.className = 'cv-art';
+        art.dataset.motif = album.id;
+        if (album.id === 'save-me-im-drowning') {
+          const cv = document.createElement('canvas');
+          cv.className = img.className;
+          cv.setAttribute('role', 'img');
+          cv.setAttribute('aria-label', img.alt);
+          art.appendChild(cv);
+          startWater(cv, album.cover);
+        } else {
+          art.appendChild(img);
+        }
+
+        if (album.id === 'ghost') {
+          const dbl = img.cloneNode();
+          dbl.className = 'cv-ghost'; dbl.alt = ''; dbl.setAttribute('aria-hidden', 'true');
+          art.appendChild(dbl);
+        }
+        if (album.id === 'come-home' && !reduceMotion) {
+          const wrap = document.createElement('div');
+          wrap.className = 'cv-embers'; wrap.setAttribute('aria-hidden', 'true');
+          for (let k = 0; k < 18; k++) {
+            const e = document.createElement('span');
+            e.className = 'cv-ember';
+            const st = e.style;
+            st.setProperty('--x',     (Math.random() * 100).toFixed(1) + '%');
+            st.setProperty('--s',     (2 + Math.random() * 3.5).toFixed(1) + 'px');
+            st.setProperty('--d',     (4.5 + Math.random() * 5).toFixed(2) + 's');
+            st.setProperty('--delay', (-Math.random() * 9).toFixed(2) + 's');
+            st.setProperty('--sway',  ((Math.random() - 0.5) * 60).toFixed(0) + 'px');
+            st.setProperty('--rise',  (220 + Math.random() * 200).toFixed(0) + 'px');
+            wrap.appendChild(e);
+          }
+          art.appendChild(wrap);
+        }
+        if (album.id === '43va') {
+          const halo = document.createElement('span');
+          halo.className = 'cv-halo'; halo.setAttribute('aria-hidden', 'true');
+          art.appendChild(halo);
+        }
+        return art;
       }
 
       /* ---------- Tune ---------- */
@@ -1395,6 +2516,9 @@
         if (i === current && !opts.force) return;
         current = i;
         const ch = CHANNELS[i];
+        if (typeof dismissHint === 'function' && !opts.instant) dismissHint();
+        Player.detach();
+        Guide.close();
         const quiet = opts.instant || reduceMotion;
 
         /* Theme */
@@ -1405,6 +2529,7 @@
 
         /* Pad state */
         keys.forEach((k, j) => {
+          if (!k) return;
           k.classList.toggle('is-active', j === i);
           k.querySelector('.ch-btn').setAttribute('aria-pressed', String(j === i));
         });
@@ -1416,12 +2541,17 @@
             window.__staticPaused = false;
             stopFog();
             view.classList.remove('is-on');
+            view.innerHTML = '';            /* stops SoundCloud + canvas loops */
+            window.__mediaPlaying = false;
             logoView.classList.remove('is-off');
+            buildAmbient(null);
           } else {
+            window.__mediaPlaying = false;
             renderView(ch);
             logoView.classList.add('is-off');
             view.classList.remove('is-on'); void view.offsetWidth; view.classList.add('is-on');
             startFog(ch.fog);
+            buildAmbient(ch);
             window.__staticPaused = !hero.classList.contains('tuning');
           }
         };
@@ -1432,28 +2562,32 @@
           window.__staticPaused = false;
           hero.classList.add('tuning');
           document.body.classList.add('glitch');
-          playStaticBurst();
+          playTuneStatic(opts.steps || 2);
+          hero.classList.remove('tuning'); void hero.offsetWidth; hero.classList.add('tuning');
           swapTimer = setTimeout(() => {
             swap();
-            setTimeout(() => {
+            document.body.classList.remove('glitch');
+            swapTimer = setTimeout(() => {
               hero.classList.remove('tuning');
-              document.body.classList.remove('glitch');
               if (!CHANNELS[current].static) window.__staticPaused = true;
-            }, 160);
-          }, 130);
+            }, 360);
+          }, 380);
         }
 
         /* OSD */
         clearTimeout(osdTimer);
         osd.classList.add('is-on');
         osdName.textContent = ch.static ? '' : ch.title;
-        if (quiet) osdNum.textContent = chLabel(i); else doChannelScan(osdNum, i);
+        if (quiet) osdNum.textContent = chLabel(i); else doChannelScan(osdNum, chNum(i));
         osdTimer = setTimeout(() => osd.classList.remove('is-on'), 2600);
 
         /* Ticker */
         const tick = ch.static ? tickerDefault
           : (`Now Playing · ${ch.title} · ${ch.year} · AARNxBRWN · `).repeat(4);
         tickers.forEach(t => { t.textContent = tick; });
+
+        /* Analytics: count each channel visit as its own page */
+        if (!ch.static) { try { window.va('pageview', { route: '/ch/' + ch.id, path: '/ch/' + ch.id }); } catch (e) {} }
 
         /* Shareable hash */
         const hash = ch.static ? '' : '#' + ch.id;
@@ -1466,10 +2600,12 @@
       let sx = null, sy = 0, sid = null;
       hero.addEventListener('pointerdown', e => {
         if (e.pointerType === 'mouse' && e.button !== 0) return;
+        if (e.target.closest('input, textarea, button, a, .cv-sc, .tv-guide, .cv-signal')) { sx = null; return; }
         sx = e.clientX; sy = e.clientY; sid = e.pointerId;
       });
       hero.addEventListener('pointerup', e => {
         if (sx === null || e.pointerId !== sid) return;
+        if (Guide.isOpen()) { sx = null; return; }
         const dx = e.clientX - sx, dy = e.clientY - sy;
         sx = null;
         if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
@@ -1481,10 +2617,91 @@
       /* ---------- Keyboard ---------- */
       document.addEventListener('keydown', e => {
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        if (Guide.isOpen()) return;
         if (window.scrollY > window.innerHeight * 0.6) return;
         if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
         tuneTo(current + (e.key === 'ArrowRight' ? 1 : -1));
       });
+
+      /* ---------- CRT switch-off (feature flag) ----------
+         Hero collapses to a glowing line while it's still mostly on screen,
+         powers back on when you return to the top. */
+      if (CONFIG.features.crtOff && 'IntersectionObserver' in window && !reduceMotion) {
+        let off = false;
+        new IntersectionObserver(([en]) => {
+          const r = en.intersectionRatio;
+          if (!off && r < 0.7 && en.boundingClientRect.top < 0) {
+            off = true;
+            hero.classList.remove('crt-on'); void hero.offsetWidth; hero.classList.add('crt-off');
+            playTuneStatic(2, false);
+          } else if (off && r > 0.92) {
+            off = false;
+            hero.classList.remove('crt-off'); void hero.offsetWidth; hero.classList.add('crt-on');
+            playTuneStatic(2, false);
+          }
+        }, { threshold: [0, 0.3, 0.5, 0.7, 0.8, 0.92, 1] }).observe(hero);
+      }
+
+      /* ---------- Remote: type a channel number (0–4, or 777) ----------
+         Digits show in the OSD like a TV remote; after a short pause (or 3
+         digits) it tunes if that channel exists. */
+      let typed = '', typedTimer = null;
+      document.addEventListener('keydown', e => {
+        if (!/^[0-9]$/.test(e.key) || e.metaKey || e.ctrlKey || e.altKey) return;
+        if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+        typed = (typed + e.key).slice(-3);
+        clearTimeout(typedTimer); clearTimeout(osdTimer);
+        osd.classList.add('is-on');
+        osdNum.textContent = 'CH ' + typed.padEnd(3, '_');
+        osdName.textContent = '';
+        const commit = () => {
+          const n = parseInt(typed, 10);
+          typed = '';
+          const idx = CHANNELS.findIndex((c, j) => chNum(j) === n);
+          if (idx >= 0) {
+            if (window.scrollY > 40) window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+            tuneTo(idx, { steps: Math.min(6, Math.abs(idx - current) + 1), force: idx === current });
+          }
+          else { osdName.textContent = 'No signal'; osdTimer = setTimeout(() => osd.classList.remove('is-on'), 1400); }
+        };
+        if (typed.length === 3) commit(); else typedTimer = setTimeout(commit, 1100);
+      });
+
+      /* ---------- Pause the hero when it's not visible ---------- */
+      const setHidden = h => {
+        window.__heroHidden = h;
+        hero.classList.toggle('is-offscreen', h);
+      };
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([en]) => setHidden(!en.isIntersecting || document.hidden)).observe(hero);
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) setHidden(true);
+        else setHidden(hero.getBoundingClientRect().bottom <= 0);
+      });
+
+      /* ---------- Warm the cover cache after load so tuning never pops in ---------- */
+      window.addEventListener('load', () => {
+        const warm = () => CHANNELS.forEach(c => { if (c.cover) { const im = new Image(); im.src = c.cover; } });
+        ('requestIdleCallback' in window) ? requestIdleCallback(warm, { timeout: 4000 }) : setTimeout(warm, 2500);
+      });
+
+      /* ---------- First-visit hint ---------- */
+      const hint = document.getElementById('ch-hint');
+      let hintSeen = false;
+      try { hintSeen = localStorage.getItem('axb-hint') === '1'; } catch (e) {}
+      function dismissHint() {
+        hint.classList.remove('is-on');
+        if (!hintSeen) { hintSeen = true; try { localStorage.setItem('axb-hint', '1'); } catch (e) {} }
+      }
+      if (!hintSeen) {
+        const touch = matchMedia('(pointer: coarse)').matches;
+        hint.innerHTML = touch
+          ? '<span class="arr">◀</span>&nbsp; Swipe to change channel &nbsp;<span class="arr r">▶</span>'
+          : '<span class="arr">◀</span>&nbsp; Arrow keys or dots to change channel &nbsp;<span class="arr r">▶</span>';
+        setTimeout(() => { if (!hintSeen) hint.classList.add('is-on'); }, 2900);
+        setTimeout(dismissHint, 9500);
+      }
 
       /* ---------- Deep link ---------- */
       const fromHash = () => {
@@ -1560,7 +2777,7 @@
 
           /* CH scan fires as each block arrives */
           document.querySelectorAll('.ch-num').forEach((el, i) => {
-            setTimeout(() => doChannelScan(el, i + 1), i * 200 + 180);
+            setTimeout(() => doChannelScan(el, i + 5), i * 200 + 180);
           });
         }
       });
