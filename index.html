@@ -13,6 +13,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 
   <style>
+    /* ================================================================
+       CHANNEL THEME TOKENS — swapped by tuneTo()
+    ================================================================ */
+    @property --accent   { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+    @property --accent-2 { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+    :root {
+      --accent: #ffffff; --accent-2: #ffffff;
+      transition: --accent 0.9s ease, --accent-2 0.9s ease;
+    }
+
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { background: #000; }
     body {
@@ -183,18 +193,19 @@
       display: block; /* required for <a> blocks */
       position: relative; overflow: hidden;
       border-bottom: 1px solid rgba(255,255,255,0.08);
-      cursor: pointer; background: #000;
+      cursor: pointer; background: color-mix(in srgb, var(--accent-2) 5%, #000);
+      transition: background 0.9s;
       opacity: 0; /* GSAP reveals on scroll */
       text-decoration: none; color: inherit; /* prevent browser link defaults */
     }
     .block::before {
       content: ''; position: absolute; top: 0; left: 0;
-      width: 0; height: 1px; background: rgba(255,255,255,0.5);
+      width: 0; height: 1px; background: color-mix(in srgb, var(--accent) 70%, transparent);
       z-index: 4; pointer-events: none;
       transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
     }
     .block:hover::before   { width: 100%; }
-    .block.is-open::before { width: 100%; background: rgba(255,255,255,0.22); }
+    .block.is-open::before { width: 100%; background: color-mix(in srgb, var(--accent) 40%, transparent); }
 
     /* Ghost watermark — very faint, texture only */
     .block-num {
@@ -231,7 +242,7 @@
       transition: color 0.3s;
     }
     .block:hover .ch-num,
-    .block.is-open .ch-num { color: rgba(255,255,255,0.95); }
+    .block.is-open .ch-num { color: var(--accent); }
 
     .ch-meta {
       display: flex; align-items: center; gap: 7px;
@@ -249,7 +260,7 @@
     .ch-signal span:nth-child(2) { height: 7px; }
     .ch-signal span:nth-child(3) { height: 11px; }
     .block:hover .ch-signal span,
-    .block.is-open .ch-signal span { background: rgba(255,255,255,0.9); }
+    .block.is-open .ch-signal span { background: var(--accent); }
 
     /* Blinking on-air dot */
     .ch-dot {
@@ -258,7 +269,7 @@
       transition: background 0.2s; flex-shrink: 0;
     }
     .block.is-open .ch-dot {
-      background: #fff;
+      background: var(--accent);
       animation: blink 1.1s step-end infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -281,7 +292,7 @@
       transition: opacity 0.3s, transform 0.42s cubic-bezier(0.34,1.4,0.64,1);
     }
     .block-icon::before, .block-icon::after {
-      content: ''; position: absolute; background: #fff;
+      content: ''; position: absolute; background: var(--accent);
     }
     .block-icon::before { width:1px; height:100%; left:50%; top:0; transform:translateX(-50%); }
     .block-icon::after  { width:100%; height:1px; top:50%; left:0; transform:translateY(-50%); }
@@ -318,7 +329,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .plat-item:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
-    .plat-item:hover { color: #fff; padding-left: 6px; }
+    .plat-item:hover { color: var(--accent); padding-left: 6px; }
     .plat-left { display: flex; align-items: center; gap: 12px; }
     .plat-icon { width: 15px; height: 15px; flex-shrink: 0; fill: currentColor; opacity: 0.45; transition: opacity 0.22s; }
     .plat-item:hover .plat-icon { opacity: 1; }
@@ -346,7 +357,7 @@
       transition: color 0.22s, background 0.22s;
       -webkit-tap-highlight-color: transparent;
     }
-    .ch-link:hover { color: #fff; background: rgba(255,255,255,0.04); }
+    .ch-link:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 
     /* ================================================================
        PRESS
@@ -367,7 +378,7 @@
       color: rgba(255,255,255,0.38); flex-shrink: 0; min-width: 76px;
       text-transform: uppercase; transition: color 0.22s;
     }
-    .press-item:hover .press-outlet { color: rgba(255,255,255,0.75); }
+    .press-item:hover .press-outlet { color: var(--accent); }
 
     .press-text { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
     .press-headline {
@@ -412,7 +423,7 @@
       transition: color 0.22s, background 0.22s;
       -webkit-tap-highlight-color: transparent;
     }
-    .social-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .social-link:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
     .social-link svg { width: 32px; height: 32px; fill: currentColor; flex-shrink: 0; }
 
     footer small {
@@ -443,7 +454,7 @@
     #cursor-glow {
       position: fixed; pointer-events: none; z-index: 8999;
       width: 220px; height: 220px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 68%);
+      background: radial-gradient(circle, color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 68%);
       transform: translate(-50%,-50%);
       opacity: 0; transition: opacity 0.4s;
       will-change: left, top;
@@ -489,7 +500,7 @@
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 8000;
       height: 28px; overflow: hidden;
       background: rgba(0,0,0,0.95);
-      border-top: 1px solid rgba(255,255,255,0.07);
+      border-top: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
       display: flex; align-items: center;
     }
     .ticker-track {
@@ -499,7 +510,7 @@
     .ticker-track span {
       font-family: 'VT323', monospace; font-size: 13px;
       letter-spacing: 5px; text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
+      color: color-mix(in srgb, var(--accent) 45%, transparent);
       padding-right: 96px;
     }
     @keyframes tickerScroll {
@@ -507,6 +518,185 @@
       to   { transform: translateX(-50%); }
     }
     body { padding-bottom: 28px; }
+
+    /* ================================================================
+       ALBUM CHANNELS — fog, channel view, OSD, controller pad
+    ================================================================ */
+    #hero { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+    #hero-static { transition: opacity 0.35s; }
+    #hero[data-ch]:not([data-ch="0"]) #hero-static { opacity: 0; }
+    #hero.tuning #hero-static { opacity: 0.95 !important; transition: none; }
+
+    #hero-fog {
+      position: absolute; inset: -6%; width: 112%; height: 112%;
+      z-index: 1; opacity: 0; pointer-events: none;
+      filter: blur(22px) saturate(1.15);
+      transition: opacity 1.1s ease;
+    }
+    #hero[data-ch]:not([data-ch="0"]) #hero-fog { opacity: 1; }
+    #hero[data-ch]:not([data-ch="0"]) .hero-vignette { opacity: 0.55; }
+    .hero-vignette { transition: opacity 1s; }
+
+    .hero-content.is-off { display: none; }
+
+    .channel-view {
+      position: relative; z-index: 5;
+      display: none; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 16px;
+      transform: translateY(-58px);
+    }
+    .channel-view.is-on { display: flex; animation: chIn 0.7s cubic-bezier(0.2,0.7,0.2,1) both; }
+    @keyframes chIn {
+      from { opacity: 0; transform: translateY(-58px) scale(1.05); filter: brightness(2.2) contrast(1.4); }
+      to   { opacity: 1; transform: translateY(-58px) scale(1);    filter: none; }
+    }
+    .cv-cover {
+      width: min(64vw, 40svh, 340px); aspect-ratio: 1; display: block;
+      object-fit: cover; background: #050505;
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+        0 18px 60px rgba(0,0,0,0.75),
+        0 0 90px color-mix(in srgb, var(--accent) 22%, transparent);
+    }
+    .cv-cover.is-art {
+      object-fit: contain; padding: 9%;
+      background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 22%, #000) 0%, #000 72%);
+    }
+    .cv-title {
+      margin-top: 22px;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+      font-size: clamp(26px, 7vw, 40px); line-height: 1; letter-spacing: 2px;
+      text-transform: uppercase; color: #fff;
+      text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+    .cv-year {
+      margin-top: 8px;
+      font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .cv-links {
+      margin-top: 18px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+      max-width: 360px;
+    }
+    .cv-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 14px; border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+      background: rgba(0,0,0,0.45);
+      color: #fff; text-decoration: none;
+      font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cv-link .plat-icon { opacity: 0.85; width: 13px; height: 13px; }
+    .cv-link:hover, .cv-link:focus-visible {
+      background: var(--accent); border-color: var(--accent); color: #000; outline: none;
+    }
+    .cv-link.is-soon {
+      cursor: default; color: var(--accent);
+      font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 4px;
+      animation: blink 1.6s step-end infinite;
+    }
+    .cv-link.is-soon:hover { background: rgba(0,0,0,0.45); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+    /* On-screen display — top-left channel readout like a real TV */
+    .ch-osd {
+      position: absolute; top: 22px; left: 22px; z-index: 8;
+      font-family: 'VT323', monospace; line-height: 1;
+      color: var(--accent); pointer-events: none;
+      text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+      opacity: 0; transition: opacity 0.5s;
+    }
+    .ch-osd.is-on { opacity: 1; transition: none; }
+    .ch-osd-num  { font-size: 38px; letter-spacing: 2px; display: block; }
+    .ch-osd-name { font-size: 15px; letter-spacing: 4px; text-transform: uppercase; }
+
+    /* Controller pad — diagonal oval face buttons */
+    .channel-pad {
+      position: absolute; left: 50%; bottom: 84px; z-index: 8;
+      transform: translateX(-50%);
+      display: flex; align-items: flex-end; gap: 20px;
+      padding-top: 40px;
+      animation: padIn 0.7s ease 2.2s both;
+    }
+    @keyframes padIn { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    .pad-readout {
+      position: absolute; top: -6px; left: 0; right: 0; text-align: center;
+      font-family: 'VT323', monospace; font-size: 14px; letter-spacing: 4px;
+      text-transform: uppercase; color: rgba(255,255,255,0.55);
+      white-space: nowrap; pointer-events: none;
+    }
+    .ch-key {
+      display: flex; flex-direction: column; align-items: center; gap: 11px;
+      transform: translateY(var(--lift, 0px));
+    }
+    .ch-key-num {
+      font-family: 'VT323', monospace; font-size: 13px; letter-spacing: 2px;
+      color: rgba(255,255,255,0.4); transition: color 0.3s;
+    }
+    .ch-key.is-active .ch-key-num { color: #fff; }
+
+    .ch-btn {
+      position: relative; display: block;
+      width: 52px; height: 38px; border-radius: 50%; border: 0; padding: 0;
+      background: var(--fill); cursor: pointer;
+      transform: rotate(-22deg);
+      box-shadow:
+        inset 0 -5px 0 rgba(0,0,0,0.38),
+        inset 0 3px 7px rgba(255,255,255,0.32),
+        0 5px 0 rgba(0,0,0,0.65),
+        0 9px 16px rgba(0,0,0,0.7);
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ch-btn::before { /* specular highlight */
+      content: ''; position: absolute; left: 16%; top: 12%; width: 46%; height: 34%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.55), transparent 70%);
+      pointer-events: none;
+    }
+    .ch-btn::after { /* active glow ring */
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      box-shadow: 0 0 0 2px var(--glow), 0 0 22px var(--glow);
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .ch-btn:hover { filter: brightness(1.15); }
+    .ch-btn:focus-visible { outline: none; }
+    .ch-btn:focus-visible::after { opacity: 0.7; }
+    .ch-btn:active, .ch-key.is-active .ch-btn {
+      transform: rotate(-22deg) translateY(3px);
+      box-shadow:
+        inset 0 -3px 0 rgba(0,0,0,0.38),
+        inset 0 3px 7px rgba(255,255,255,0.32),
+        0 2px 0 rgba(0,0,0,0.65),
+        0 4px 8px rgba(0,0,0,0.7);
+    }
+    .ch-key.is-active .ch-btn::after { opacity: 1; }
+
+    /* CH00 — small flat "start" pill, set apart to the left */
+    .ch-key.is-start { margin-right: 10px; align-self: center; }
+    .ch-key.is-start .ch-btn {
+      width: 34px; height: 11px; border-radius: 8px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.25), 0 2px 0 rgba(0,0,0,0.6);
+    }
+    .ch-key.is-start .ch-btn::before { display: none; }
+    .ch-key.is-start .ch-btn::after { inset: -4px; border-radius: 10px; }
+    .ch-key.is-start:active .ch-btn, .ch-key.is-start.is-active .ch-btn { transform: rotate(-22deg) translateY(1px); }
+
+    @media (max-width: 480px) {
+      .channel-pad { gap: 15px; bottom: 80px; }
+      .ch-btn { width: 44px; height: 32px; }
+      .ch-key { transform: translateY(calc(var(--lift, 0px) * 0.75)); }
+    }
+    @media (max-height: 640px) {
+      .channel-view { transform: translateY(-48px); }
+      .cv-cover { width: min(56vw, 34svh, 300px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .channel-view.is-on { animation: none; }
+      .channel-pad { animation: none; }
+    }
   </style>
 </head>
 <body>
@@ -549,6 +739,7 @@
   ================================================================ -->
   <section id="hero">
     <canvas id="hero-static" width="480" height="270" aria-hidden="true"></canvas>
+    <canvas id="hero-fog"    width="160" height="90"  aria-hidden="true"></canvas>
     <div class="scanlines"     aria-hidden="true"></div>
     <div class="scan-sweep"    aria-hidden="true"></div>
     <div class="hero-vignette" aria-hidden="true"></div>
@@ -560,7 +751,21 @@
       <p class="hero-tagline" id="hero-tagline"></p>
     </div>
 
+    <!-- Album channel view (filled by tuneTo) -->
+    <div class="channel-view" id="channel-view" aria-live="polite"></div>
+
+    <!-- TV-style on-screen channel readout -->
+    <div class="ch-osd" id="ch-osd" aria-hidden="true">
+      <span class="ch-osd-num" id="ch-osd-num">CH 00</span>
+      <span class="ch-osd-name" id="ch-osd-name"></span>
+    </div>
+
     <div class="hero-fade" aria-hidden="true"></div>
+
+    <!-- Controller-style channel buttons (built from CONFIG.albums) -->
+    <nav class="channel-pad" id="channel-pad" aria-label="Album channels">
+      <span class="pad-readout" id="pad-readout" aria-hidden="true"></span>
+    </nav>
 
     <div class="scroll-hint" id="scroll-hint" aria-hidden="true">
       <svg width="22" height="14" viewBox="0 0 22 14" fill="none"
@@ -755,6 +960,62 @@
         { name: 'Bandcamp',    url: 'https://aarnxbrwn.bandcamp.com' },
       ],
       beehiiv: 'https://aarnxbrwn.beehiiv.com/subscribe',
+
+      /* Album channels — chronological. CH 00 is the static/logo screen.
+         accent = page-wide theme color, fog = [main, secondary] swirl colors,
+         fill = the controller button's paint.
+         TODO: Spotify/Tidal currently point at the artist page — paste album URLs in. */
+      albums: [
+        {
+          id: 'ghost', title: 'Ghost', year: '2019',
+          cover: 'covers/ghost.jpg',
+          accent: '#ff3b3b', accent2: '#7a0a12',
+          fog: ['#ff2b2b', '#5a0610'],
+          fill: '#e8202a',
+          links: {
+            'Spotify':     'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1',
+            'Apple Music': 'https://music.apple.com/us/album/ghost/1465035482',
+            'Tidal':       'https://tidal.com/artist/9155431',
+          },
+        },
+        {
+          id: 'save-me-im-drowning', title: "Save Me I'm Drowning", year: '2020',
+          cover: 'covers/save-me-im-drowning.jpg',
+          accent: '#ff8de6', accent2: '#9d8cf0',
+          fog: ['#ff7ce8', '#8f7cf0'],
+          fill: '#f27fd9',
+          links: {
+            'Spotify':     'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1',
+            'Apple Music': 'https://music.apple.com/us/album/save-me-im-drowning/1537990295',
+            'Tidal':       'https://tidal.com/artist/9155431',
+            'Bandcamp':    'https://aarnxbrwn.bandcamp.com/album/save-me-im-drowning',
+          },
+        },
+        {
+          id: 'come-home', title: 'Come Home', year: '2023',
+          cover: 'covers/come-home.jpg',
+          accent: '#ff2a33', accent2: '#2a0508',
+          fog: ['#e3121c', '#0a0204'],
+          fill: 'linear-gradient(135deg, #ff2a33 0%, #9a0b12 45%, #0b0b0b 100%)',
+          links: {
+            'Spotify':     'https://open.spotify.com/artist/592E2jqU9fpWj230gI0Ab1',
+            'Apple Music': 'https://music.apple.com/us/album/come-home/1663345407',
+            'Tidal':       'https://tidal.com/artist/9155431',
+            'Bandcamp':    'https://aarnxbrwn.bandcamp.com/album/come-home',
+          },
+        },
+        {
+          id: '43va', title: '43VA All Along', year: 'March 2027',
+          cover: 'covers/43va.webp', coverIsArt: true,
+          accent: '#6ff0b6', accent2: '#062018',
+          fog: ['#5fe0a8', '#020806'],
+          fill: 'linear-gradient(135deg, #7dffc4 0%, #2f9c6e 45%, #0b0b0b 100%)',
+          /* Before releaseDate: "Coming Soon". On/after: button links to url. */
+          releaseDate: '2027-03-01',
+          url: 'https://43vrallalongsite.vercel.app',
+          links: {},
+        },
+      ],
       press: [
         {
           outlet: 'RVA Mag',
@@ -794,6 +1055,7 @@
 
       function draw(ts) {
         requestAnimationFrame(draw);
+        if (window.__staticPaused) return;   /* paused while an album channel is on */
         if (ts - last < 1000 / 24) return;
         last = ts;
 
@@ -993,6 +1255,249 @@
         numEl.textContent = 'CH ' + String(final).padStart(2, '0');
       });
     });
+
+    /* ================================================================
+       ALBUM CHANNELS
+    ================================================================ */
+    (function () {
+      const hero     = document.getElementById('hero');
+      const logoView = document.getElementById('hero-content');
+      const view     = document.getElementById('channel-view');
+      const pad      = document.getElementById('channel-pad');
+      const readout  = document.getElementById('pad-readout');
+      const osd      = document.getElementById('ch-osd');
+      const osdNum   = document.getElementById('ch-osd-num');
+      const osdName  = document.getElementById('ch-osd-name');
+      const tickers  = document.querySelectorAll('.ticker-track span');
+      const tickerDefault = tickers[0] ? tickers[0].textContent : '';
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* Channel list: index 0 = static, 1..n = albums */
+      const CHANNELS = [{ id: 'static', title: 'Static', static: true }].concat(CONFIG.albums);
+      const chLabel = i => 'CH ' + String(i).padStart(2, '0');
+      let current = 0, osdTimer = null, swapTimer = null;
+
+      /* ---------- Fog renderer ---------- */
+      const fogCanvas = document.getElementById('hero-fog');
+      const fctx = fogCanvas.getContext('2d');
+      const FW = fogCanvas.width, FH = fogCanvas.height;
+      let fogRaf = null, fogColors = ['#000', '#000'];
+      const blobs = Array.from({ length: 7 }, (_, i) => ({
+        ax: 0.18 + Math.random() * 0.34, ay: 0.16 + Math.random() * 0.3,
+        sx: 0.00009 + Math.random() * 0.00013, sy: 0.00008 + Math.random() * 0.00012,
+        px: Math.random() * 6.28, py: Math.random() * 6.28,
+        r: 0.38 + Math.random() * 0.3, c: i % 2,
+      }));
+      function hexA(hex, a) {
+        const n = parseInt(hex.slice(1), 16);
+        return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+      }
+      function drawFog(t) {
+        fctx.globalCompositeOperation = 'source-over';
+        fctx.fillStyle = hexA(fogColors[1], 1);
+        fctx.fillRect(0, 0, FW, FH);
+        fctx.fillStyle = 'rgba(0,0,0,0.35)';
+        fctx.fillRect(0, 0, FW, FH);
+        blobs.forEach(b => {
+          const x = FW * (0.5 + b.ax * Math.sin(t * b.sx + b.px));
+          const y = FH * (0.5 + b.ay * Math.cos(t * b.sy + b.py));
+          const r = FW * b.r;
+          const g = fctx.createRadialGradient(x, y, 0, x, y, r);
+          const col = fogColors[b.c];
+          g.addColorStop(0,   hexA(col, b.c ? 0.55 : 0.5));
+          g.addColorStop(0.5, hexA(col, b.c ? 0.25 : 0.2));
+          g.addColorStop(1,   hexA(col, 0));
+          fctx.fillStyle = g;
+          fctx.fillRect(0, 0, FW, FH);
+        });
+      }
+      function fogLoop(t) { drawFog(t); fogRaf = requestAnimationFrame(fogLoop); }
+      function startFog(colors) {
+        fogColors = colors;
+        if (reduceMotion) { cancelAnimationFrame(fogRaf); drawFog(performance.now()); return; }
+        if (!fogRaf) fogRaf = requestAnimationFrame(fogLoop);
+      }
+      function stopFog() { cancelAnimationFrame(fogRaf); fogRaf = null; }
+
+      /* ---------- Build controller pad ---------- */
+      const keys = CHANNELS.map((ch, i) => {
+        const key = document.createElement('div');
+        key.className = 'ch-key' + (ch.static ? ' is-start' : '');
+        if (!ch.static) key.style.setProperty('--lift', (-(i - 1) * 13) + 'px');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ch-btn';
+        btn.style.setProperty('--fill', ch.static ? '#2b2b2b' : ch.fill);
+        btn.style.setProperty('--glow', ch.static ? 'rgba(255,255,255,0.7)' : ch.accent);
+        btn.setAttribute('aria-label', ch.static
+          ? 'Channel 0: Static'
+          : `Channel ${i}: ${ch.title} (${ch.year})`);
+        btn.setAttribute('aria-pressed', 'false');
+        const num = document.createElement('span');
+        num.className = 'ch-key-num';
+        num.setAttribute('aria-hidden', 'true');
+        num.textContent = ch.static ? 'STATIC' : String(i).padStart(2, '0');
+        key.append(btn, num);
+        const label = `${chLabel(i)} · ${ch.static ? 'Static' : ch.title}`;
+        const show = () => { readout.textContent = label; };
+        const hide = () => { readout.textContent = ''; };
+        btn.addEventListener('mouseenter', show);
+        btn.addEventListener('focus', show);
+        btn.addEventListener('mouseleave', hide);
+        btn.addEventListener('blur', hide);
+        btn.addEventListener('click', () => tuneTo(i));
+        pad.appendChild(key);
+        return key;
+      });
+
+      /* ---------- Channel view content ---------- */
+      function isReleased(album) {
+        return !album.releaseDate || new Date() >= new Date(album.releaseDate + 'T00:00:00');
+      }
+      function renderView(album) {
+        view.innerHTML = '';
+        const img = document.createElement('img');
+        img.className = 'cv-cover' + (album.coverIsArt ? ' is-art' : '');
+        img.src = album.cover; img.alt = `${album.title} cover art`;
+        img.draggable = false;
+        const title = document.createElement('div');
+        title.className = 'cv-title'; title.textContent = album.title;
+        const year = document.createElement('div');
+        year.className = 'cv-year'; year.textContent = album.year;
+        const links = document.createElement('div');
+        links.className = 'cv-links';
+
+        if (album.url) {
+          if (isReleased(album)) {
+            const a = document.createElement('a');
+            a.className = 'cv-link'; a.href = album.url; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = 'Enter →';
+            links.appendChild(a);
+          } else {
+            const s = document.createElement('span');
+            s.className = 'cv-link is-soon';
+            s.textContent = 'Coming Soon · ' + album.year;
+            links.appendChild(s);
+          }
+        }
+        Object.entries(album.links || {}).forEach(([name, url]) => {
+          const a = document.createElement('a');
+          a.className = 'cv-link'; a.href = url; a.target = '_blank'; a.rel = 'noopener';
+          a.innerHTML = (DSP_ICONS[name] || '') + `<span>${name}</span>`;
+          links.appendChild(a);
+        });
+        view.append(img, title, year, links);
+      }
+
+      /* ---------- Tune ---------- */
+      function tuneTo(i, opts = {}) {
+        i = ((i % CHANNELS.length) + CHANNELS.length) % CHANNELS.length;
+        if (i === current && !opts.force) return;
+        current = i;
+        const ch = CHANNELS[i];
+        const quiet = opts.instant || reduceMotion;
+
+        /* Theme */
+        const root = document.documentElement.style;
+        root.setProperty('--accent',   ch.static ? '#ffffff' : ch.accent);
+        root.setProperty('--accent-2', ch.static ? '#ffffff' : ch.accent2);
+        document.body.dataset.channel = ch.id;
+
+        /* Pad state */
+        keys.forEach((k, j) => {
+          k.classList.toggle('is-active', j === i);
+          k.querySelector('.ch-btn').setAttribute('aria-pressed', String(j === i));
+        });
+
+        /* Static burst, then swap the picture mid-burst */
+        const swap = () => {
+          hero.dataset.ch = String(i);
+          if (ch.static) {
+            window.__staticPaused = false;
+            stopFog();
+            view.classList.remove('is-on');
+            logoView.classList.remove('is-off');
+          } else {
+            renderView(ch);
+            logoView.classList.add('is-off');
+            view.classList.remove('is-on'); void view.offsetWidth; view.classList.add('is-on');
+            startFog(ch.fog);
+            window.__staticPaused = !hero.classList.contains('tuning');
+          }
+        };
+        clearTimeout(swapTimer);
+        if (quiet) {
+          swap();
+        } else {
+          window.__staticPaused = false;
+          hero.classList.add('tuning');
+          document.body.classList.add('glitch');
+          playStaticBurst();
+          swapTimer = setTimeout(() => {
+            swap();
+            setTimeout(() => {
+              hero.classList.remove('tuning');
+              document.body.classList.remove('glitch');
+              if (!CHANNELS[current].static) window.__staticPaused = true;
+            }, 160);
+          }, 130);
+        }
+
+        /* OSD */
+        clearTimeout(osdTimer);
+        osd.classList.add('is-on');
+        osdName.textContent = ch.static ? '' : ch.title;
+        if (quiet) osdNum.textContent = chLabel(i); else doChannelScan(osdNum, i);
+        osdTimer = setTimeout(() => osd.classList.remove('is-on'), 2600);
+
+        /* Ticker */
+        const tick = ch.static ? tickerDefault
+          : (`Now Playing · ${ch.title} · ${ch.year} · AARNxBRWN · `).repeat(4);
+        tickers.forEach(t => { t.textContent = tick; });
+
+        /* Shareable hash */
+        const hash = ch.static ? '' : '#' + ch.id;
+        if (location.hash !== hash) {
+          history.replaceState(null, '', hash || location.pathname + location.search);
+        }
+      }
+
+      /* ---------- Swipe ---------- */
+      let sx = null, sy = 0, sid = null;
+      hero.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        sx = e.clientX; sy = e.clientY; sid = e.pointerId;
+      });
+      hero.addEventListener('pointerup', e => {
+        if (sx === null || e.pointerId !== sid) return;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+          tuneTo(current + (dx < 0 ? 1 : -1));
+        }
+      });
+      hero.addEventListener('pointercancel', () => { sx = null; });
+
+      /* ---------- Keyboard ---------- */
+      document.addEventListener('keydown', e => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        if (window.scrollY > window.innerHeight * 0.6) return;
+        if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+        tuneTo(current + (e.key === 'ArrowRight' ? 1 : -1));
+      });
+
+      /* ---------- Deep link ---------- */
+      const fromHash = () => {
+        const id = location.hash.slice(1);
+        const idx = CHANNELS.findIndex(c => !c.static && c.id === id);
+        if (idx > 0) tuneTo(idx, { instant: true });
+      };
+      keys[0].classList.add('is-active');
+      keys[0].querySelector('.ch-btn').setAttribute('aria-pressed', 'true');
+      hero.dataset.ch = '0';
+      fromHash();
+      window.addEventListener('hashchange', fromHash);
+    })();
 
     /* Hide scroll hint once user starts scrolling */
     window.addEventListener('scroll', function hideHint() {
